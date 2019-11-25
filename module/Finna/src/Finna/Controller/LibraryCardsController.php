@@ -421,13 +421,14 @@ class LibraryCardsController extends \VuFind\Controller\LibraryCardsController
                 ],
             ];
         }
-        foreach ($fields as $id => &$field) {
-            $field['value'] = 'email' === $id
+        foreach ($fields as $id => &$fieldRef) {
+            // Use the email address used for the registration message
+            $fieldRef['value'] = 'email' === $id
                 ? $params['email'] : $params['userdata'][$id] ?? '';
         }
         // Unset reference so that any further use doesn't access the referred
         // element
-        unset($field);
+        unset($fieldRef);
 
         $params['fields'] = $fields;
         $view = $this->createViewModel($params);
