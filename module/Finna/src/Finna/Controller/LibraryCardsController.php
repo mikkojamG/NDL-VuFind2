@@ -425,6 +425,8 @@ class LibraryCardsController extends \VuFind\Controller\LibraryCardsController
             $field['value'] = 'email' === $id
                 ? $params['email'] : $params['userdata'][$id] ?? '';
         }
+        // Unset reference so that any further use doesn't access the referred
+        // element
         unset($field);
 
         $params['fields'] = $fields;
@@ -436,6 +438,7 @@ class LibraryCardsController extends \VuFind\Controller\LibraryCardsController
         if ($this->formWasSubmitted('submit')) {
             $missingFields = false;
             foreach ($fields as $id => $field) {
+                // Don't let the user override the email address
                 $params['userdata'][$id] = 'email' === $id
                     ? $params['email'] : trim($this->params()->fromPost($id, ''));
                 if (($field['required'] ?? false)
