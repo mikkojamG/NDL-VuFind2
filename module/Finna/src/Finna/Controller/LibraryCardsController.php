@@ -414,8 +414,8 @@ class LibraryCardsController extends \VuFind\Controller\LibraryCardsController
                     'type' => 'radio',
                     'required' => true,
                     'options' => [
-                        'fi' => ['name' => 'Finnish'],
-                        'sv' => ['name' => 'Swedish'],
+                        'fi' => ['name' => 'Suomi'],
+                        'sv' => ['name' => 'Svenska'],
                         'en' => ['name' => 'English'],
                     ],
                 ],
