@@ -22,16 +22,20 @@
     <?php endif; ?>
     <?php foreach ($this->fields as $field => $data): ?>
       <div class="form-group">
-        <label class="control-label" for="<?=$this->escapeHtmlAttr($field)?>"><?=$this->transEsc($data['label']) ?>:</label>
-        <br>
         <?php if ('radio' === $data['type']): ?>
-          <?php foreach($data['options'] as $optionId => $option): ?>
-            <input type="radio" name="<?=$this->escapeHtmlAttr($field)?>" id="<?=$this->escapeHtmlAttr($field . '_' . $optionId) ?>" class="form-control" value="<?=$this->escapeHtmlAttr($optionId)?>"<?=$optionId == $data['value'] ? ' checked' : ''?><?=$data['required'] ?? false ? ' required': ''?><?=$data['readonly'] ?? false ? ' readonly': ''?>>
-            <label for="<?=$this->escapeHtmlAttr($field . '_' . $optionId) ?>"><?=$this->transEsc($option['name'] ?? $optionId) ?></label>
-            <br>
-          <?php endforeach; ?>
+          <label class="control-label"><?=$this->transEsc($data['label']) ?>:</label>
+          <br>
+          <fieldset>
+            <?php foreach($data['options'] as $optionId => $option): ?>
+              <input type="radio" name="<?=$this->escapeHtmlAttr($field)?>" id="<?=$this->escapeHtmlAttr($field . '_' . $optionId) ?>" class="form-control" value="<?=$this->escapeHtmlAttr($optionId)?>"<?=$optionId == $data['value'] ? ' checked' : ''?><?=$data['required'] ?? false ? ' required aria-required="true"': ''?><?=$data['readonly'] ?? false ? ' readonly': ''?>>
+              <label for="<?=$this->escapeHtmlAttr($field . '_' . $optionId) ?>"><?=$this->transEsc($option['name'] ?? $optionId) ?></label>
+              <br>
+            <?php endforeach; ?>
+          </fieldset>
         <?php else: ?>
-          <input type="<?=$this->escapeHtmlAttr($data['type'])?>" name="<?=$this->escapeHtmlAttr($field)?>" id="<?=$this->escapeHtmlAttr($field)?>" class="form-control" value="<?=$this->escapeHtmlAttr($data['value'])?>"<?=$data['required'] ?? false ? ' required': ''?><?=$data['readonly'] ?? false ? ' readonly': ''?>>
+          <label class="control-label" for="<?=$this->escapeHtmlAttr($field)?>"><?=$this->transEsc($data['label']) ?>:</label>
+          <br>
+          <input type="<?=$this->escapeHtmlAttr($data['type'])?>" name="<?=$this->escapeHtmlAttr($field)?>" id="<?=$this->escapeHtmlAttr($field)?>" class="form-control" value="<?=$this->escapeHtmlAttr($data['value'])?>"<?=$data['required'] ?? false ? ' required aria-required="true"': ''?><?=$data['readonly'] ?? false ? ' readonly': ''?>>
         <?php endif; ?>
         <div class="help-block with-errors"></div>
       </div>
