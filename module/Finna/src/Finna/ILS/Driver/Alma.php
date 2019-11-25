@@ -546,7 +546,7 @@ class Alma extends \VuFind\ILS\Driver\Alma
         // Check if config params are all set
         $configParams = [
             'recordType', 'userGroup',
-            'accountType', 'status', 'emailType', 'idType'
+            'accountType', 'status', 'emailType',
         ];
         foreach ($configParams as $configParam) {
             if (empty(trim($newUserConfig[$configParam] ?? ''))) {
@@ -634,10 +634,23 @@ class Alma extends \VuFind\ILS\Driver\Alma
         $phone->addChild('phone_number', $formParams['phone']);
 
         if (!empty($formParams['identitynumber'])) {
-            $userIdentifiers = $xml->addChild('user_identifiers');
-            $userIdentifier = $userIdentifiers->addChild('user_identifier');
-            $userIdentifier->addChild('id_type', $newUserConfig['idType']);
-            $userIdentifier->addChild('value', $formParams['identitynumber']);
+            $identityField = $newUserConfig['identityField'] ?? 'primary_id';
+            if ('primary_id' === $identityField) {
+                $xml->addChild('primary_id', $formParams['identitynumber']);
+            } elseif ('inst_id' === $identityField) {
+                $userIdentifiers = $xml->addChild('user_identifiers');
+                $userIdentifier = $userIdentifiers->addChild('user_identifier');
+                $userIdentifier->addChild('id_type', 'INST_ID');
+                $userIdentifier->addChild('value', $formParams['identitynumber']);
+            } elseif ('note' === $identityField) {
+                $notes = $xml->addChild('user_notes');
+                $note = $notes->addChild('user_note');
+                $noteType = $note->addChild('note_type', 'OTHER');
+                $noteType['Description'] = 'Other';
+                $note->addChild('note_text', $formParams['identitynumber']);
+                $note->addChild('user_viewable', 'false');
+                $note->addChild('popup_note', 'false');
+            }
         }
 
         $userXml = $xml->asXML();
@@ -821,7 +834,7 @@ class Alma extends \VuFind\ILS\Driver\Alma
         if ('registerPatron' === $method) {
             $config = $this->config['NewUser'] ?? [];
             $required = [
-                'recordType', 'accountType', 'status', 'userGroup', 'idType',
+                'recordType', 'accountType', 'status', 'userGroup',
                 'emailType', 'termsUrl'
             ];
             foreach ($required as $key) {

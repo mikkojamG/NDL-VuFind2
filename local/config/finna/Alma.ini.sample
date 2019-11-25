@@ -57,11 +57,6 @@ status = INACTIVE
 ; the user groups that are defined in Alma (see "Alma Configuration -> User Management -> User Groups").
 userGroup = GUEST
 
-; Mandatory. Finna: The type of ID under which the identity number should be saved to Alma.
-; Log in to the ExLibris developer network and check the Alma API documentation for possible values on this site:
-; https://developers.exlibrisgroup.com/alma/apis/xsd/rest_user.xsd?tags=POST#user_identifier
-idType = INST_ID
-
 ; Mandatory. The type of eMail of the users eMail address. Log in to the ExLibris developer network and
 ; check the Alma API documentation for possible values on this site:
 ; https://developers.exlibrisgroup.com/alma/apis/xsd/rest_user.xsd?tags=POST#email_types
@@ -79,6 +74,10 @@ expiryDate = P10Y
 ; https://secure.php.net/manual/en/dateinterval.construct.php#refsect1-dateinterval.construct-parameters
 ; If not set, the purge date of the Alma user account will be empty.
 purgeDate = P11Y
+
+; Field where the identity number is stored. Default is primary id. Supported values are:
+; "primary_id", "inst_id", "note"
+;identityField =
 
 ; Optional introduction texts that can be displayed on the initial email form
 ;introductionText = "Introduction text for all languages."
