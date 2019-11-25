@@ -437,7 +437,7 @@ class LibraryCardsController extends \VuFind\Controller\LibraryCardsController
             $missingFields = false;
             foreach ($fields as $id => $field) {
                 $params['userdata'][$id] = 'email' === $id
-                    ? $params['email'] : $this->params()->fromPost($id, '');
+                    ? $params['email'] : trim($this->params()->fromPost($id, ''));
                 if (($field['required'] ?? false)
                     && '' === $params['userdata'][$id]
                 ) {
