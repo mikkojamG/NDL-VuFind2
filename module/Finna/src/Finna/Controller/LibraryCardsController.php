@@ -294,14 +294,20 @@ class LibraryCardsController extends \VuFind\Controller\LibraryCardsController
                     ->get(\VuFind\Auth\EmailAuthenticator::class);
 
                 $patron = $catalog->patronLogin("$target.$email", ' ');
+                $targetName = $this->translate("source_$target", null, $target);
+                $subject = $this->translate(
+                    'email_registration_subject',
+                    ['%%target%%' => $targetName]
+                );
                 try {
                     if ($patron) {
+                        $patron['target'] = $target;
                         $emailAuthenticator->sendAuthenticationLink(
                             $patron['email'],
                             $patron,
                             ['auth_method' => 'MultiILS'],
                             'myresearch-home',
-                            'email_registration_subject',
+                            $subject,
                             'Email/registration-login-link.phtml'
                         );
                     } else {
@@ -313,7 +319,7 @@ class LibraryCardsController extends \VuFind\Controller\LibraryCardsController
                             ],
                             [],
                             'librarycards-registrationform',
-                            'email_registration_subject',
+                            $subject,
                             'Email/registration-link.phtml'
                         );
                     }
