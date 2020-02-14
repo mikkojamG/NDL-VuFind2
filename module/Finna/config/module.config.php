@@ -533,13 +533,10 @@ $config = [
                     'axiellwebservices' => 'Finna\ILS\Driver\AxiellWebServices',
                     'gemini' => 'Finna\ILS\Driver\Gemini',
                     'mikromarc' => 'Finna\ILS\Driver\Mikromarc',
-                    // TODO: remove the following line when KohaRest driver is available upstream:
-                    'koharest' => 'Finna\ILS\Driver\KohaRestSuomi',
                     'koharestsuomi' => 'Finna\ILS\Driver\KohaRestSuomi',
 
                     'VuFind\ILS\Driver\Alma' => 'Finna\ILS\Driver\Alma',
                     'VuFind\ILS\Driver\Demo' => 'Finna\ILS\Driver\Demo',
-                    'VuFind\ILS\Driver\KohaRest' => 'Finna\ILS\Driver\KohaRest',
                     'VuFind\ILS\Driver\MultiBackend' => 'Finna\ILS\Driver\MultiBackend',
                     'VuFind\ILS\Driver\SierraRest' => 'Finna\ILS\Driver\SierraRest',
                     'VuFind\ILS\Driver\Voyager' => 'Finna\ILS\Driver\Voyager',
