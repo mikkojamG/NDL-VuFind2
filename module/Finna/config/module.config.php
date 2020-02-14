@@ -522,6 +522,7 @@ $config = [
                     'Finna\ILS\Driver\AxiellWebServices' => 'Finna\ILS\Driver\AxiellWebServicesFactory',
                     'Finna\ILS\Driver\Demo' => 'VuFind\ILS\Driver\DemoFactory',
                     'Finna\ILS\Driver\Gemini' => '\VuFind\ILS\Driver\DriverWithDateConverterFactory',
+                    'Finna\ILS\Driver\KohaRest' => 'VuFind\ILS\Driver\KohaRestFactory',
                     'Finna\ILS\Driver\KohaRestSuomi' => 'Finna\ILS\Driver\KohaRestSuomiFactory',
                     'Finna\ILS\Driver\Mikromarc' => '\VuFind\ILS\Driver\DriverWithDateConverterFactory',
                     'Finna\ILS\Driver\MultiBackend' => 'Finna\ILS\Driver\MultiBackendFactory',
@@ -537,6 +538,7 @@ $config = [
 
                     'VuFind\ILS\Driver\Alma' => 'Finna\ILS\Driver\Alma',
                     'VuFind\ILS\Driver\Demo' => 'Finna\ILS\Driver\Demo',
+                    'VuFind\ILS\Driver\KohaRest' => 'Finna\ILS\Driver\KohaRest',
                     'VuFind\ILS\Driver\MultiBackend' => 'Finna\ILS\Driver\MultiBackend',
                     'VuFind\ILS\Driver\SierraRest' => 'Finna\ILS\Driver\SierraRest',
                     'VuFind\ILS\Driver\Voyager' => 'Finna\ILS\Driver\Voyager',
