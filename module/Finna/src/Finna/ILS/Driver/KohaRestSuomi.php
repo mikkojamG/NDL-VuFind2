@@ -1398,39 +1398,29 @@ class KohaRestSuomi extends KohaRestSuomiVuFind
     {
         $holdings = [];
         if (!empty($this->config['Holdings']['use_holding_records'])) {
-            list($code, $holdingsResult) = $this->makeRequest(
-                ['v1', 'biblios', $id, 'holdings'],
-                [],
-                'GET',
-                $patron,
-                true
+            $holdingsResult = $this->makeRequest(
+                ['v1', 'contrib', 'kohasuomi', 'biblios', $id, 'holdings']
             );
-            if (404 === $code) {
+            if (404 === $holdingsResult['code']) {
                 return [];
             }
-            if ($code !== 200) {
+            if (200 !== $holdingsResult['code']) {
                 throw new ILSException('Problem with Koha REST API.');
             }
 
             // Turn the results into a keyed array
-            if (!empty($holdingsResult['holdings'])) {
-                foreach ($holdingsResult['holdings'] as $holding) {
-                    $holdings[$holding['holding_id']] = $holding;
-                }
+            foreach ($holdingsResult['data']['holdings'] ?? [] as $holding) {
+                $holdings[$holding['holding_id']] = $holding;
             }
         }
 
-        list($code, $result) = $this->makeRequest(
-            ['v1', 'availability', 'biblio', 'search'],
-            ['biblionumber' => $id],
-            'GET',
-            $patron,
-            true
+        $result = $this->makeRequest(
+            ['v1', 'contrib', 'kohasuomi', 'availability', 'biblios', $id, 'search']
         );
-        if (404 === $code) {
+        if (404 === $result['code']) {
             return [];
         }
-        if ($code !== 200) {
+        if (200 !== $result['code']) {
             throw new ILSException('Problem with Koha REST API.');
         }
 
@@ -1450,10 +1440,10 @@ class KohaRestSuomi extends KohaRestSuomiVuFind
             $available = $avail['available'];
             $statusCodes = $this->getItemStatusCodes($item);
             $status = $this->pickStatus($statusCodes);
-            if (isset($avail['unavailabilities']['Item::CheckedOut']['date_due'])) {
-                $duedate = $this->dateConverter->convertToDisplayDate(
-                    'Y-m-d\TH:i:sP',
-                    $avail['unavailabilities']['Item::CheckedOut']['date_due']
+            if (isset($avail['unavailabilities']['Item::CheckedOut']['due_date'])) {
+                $duedate = $this->convertDate(
+                    $avail['unavailabilities']['Item::CheckedOut']['due_date'],
+                    true
                 );
             } else {
                 $duedate = null;
@@ -1461,24 +1451,22 @@ class KohaRestSuomi extends KohaRestSuomiVuFind
 
             $location = $this->getItemLocationName($item);
             $callnumber = $this->getItemCallNumber($item);
-            $sublocation = $item['sub_description'] ?? '';
             $branchId = (!$this->useHomeBranch && null !== $item['holdingbranch'])
                 ? $item['holdingbranch'] : $item['homebranch'];
             $locationId = $item['location'];
 
             $entry = [
                 'id' => $id,
-                'item_id' => $item['itemnumber'],
+                'item_id' => $item['item_id'],
                 'location' => $location,
-                'department' => $sublocation,
                 'availability' => $available,
                 'status' => $status,
                 'status_array' => $statusCodes,
                 'reserve' => 'N',
                 'callnumber' => $callnumber,
                 'duedate' => $duedate,
-                'number' => $item['enumchron'],
-                'barcode' => $item['barcode'],
+                'number' => $item['serial_issue_number'],
+                'barcode' => $item['external_id'],
                 'sort' => $i,
                 'requests_placed' => max(
                     [$item['hold_queue_length'], $result[0]['hold_queue_length']]
