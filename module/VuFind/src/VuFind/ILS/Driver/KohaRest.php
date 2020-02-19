@@ -612,7 +612,7 @@ class KohaRest extends \VuFind\ILS\Driver\AbstractBase implements
             $holds[] = [
                 'id' => $entry['biblio_id'],
                 'item_id' => $entry['item_id'] ?? null,
-                'hold_id' => $entry['hold_id'],
+                'requestId' => $entry['hold_id'],
                 'location' => $this->getLibraryName(
                     $entry['pickup_library_id'] ?? null
                 ),
@@ -647,7 +647,7 @@ class KohaRest extends \VuFind\ILS\Driver\AbstractBase implements
     public function getCancelHoldDetails($holdDetails)
     {
         return $holdDetails['available'] || $holdDetails['in_transit'] ? ''
-            : $holdDetails['hold_id'] . '|' . $holdDetails['item_id'];
+            : $holdDetails['requestId'] . '|' . $holdDetails['item_id'];
     }
 
     /**
@@ -977,7 +977,7 @@ class KohaRest extends \VuFind\ILS\Driver\AbstractBase implements
         );
 
         if ($result['code'] >= 300) {
-            return $this->holdError($result['data']['error']);
+            return $this->holdError($result['data']['error'] ?? 'hold_error_fail');
         }
         return ['success' => true];
     }
@@ -2050,26 +2050,24 @@ class KohaRest extends \VuFind\ILS\Driver\AbstractBase implements
     /**
      * Return a hold error message
      *
-     * @param int   $code   HTTP Result Code
-     * @param array $result API Response
+     * @param string $error Error message
      *
      * @return array
      */
-    protected function holdError($code, $result = null)
+    protected function holdError($error)
     {
-        $message = $result['error'] ?? 'hold_error_fail';
-        switch ($message) {
-        case 'Reserve cannot be placed. Reason: tooManyReserves':
-        case 'Reserve cannot be placed. Reason: tooManyHoldsForThisRecord':
-            $message = 'hold_error_too_many_holds';
+        switch ($error) {
+        case 'Hold cannot be placed. Reason: tooManyReserves':
+        case 'Hold cannot be placed. Reason: tooManyHoldsForThisRecord':
+            $error = 'hold_error_too_many_holds';
             break;
-        case 'Reserve cannot be placed. Reason: ageRestricted':
-            $message = 'hold_error_age_restricted';
+        case 'Hold cannot be placed. Reason: ageRestricted':
+            $error = 'hold_error_age_restricted';
             break;
         }
         return [
             'success' => false,
-            'sysMessage' => $message
+            'sysMessage' => $error
         ];
     }
 
