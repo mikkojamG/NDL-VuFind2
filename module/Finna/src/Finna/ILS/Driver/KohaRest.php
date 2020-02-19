@@ -56,14 +56,14 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
     ];
 
     /**
-     * Whether to use location in addition to branch when grouping holdings
+     * Whether to use location in addition to library when grouping holdings
      *
      * @param bool
      */
     protected $groupHoldingsByLocation;
 
     /**
-     * Priority settings for the order of librares or library/location combinations
+     * Priority settings for the order of libraries or library/location combinations
      *
      * @var array
      */
@@ -603,10 +603,9 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
             return $this->holdError('hold_invalid_pickup');
         }
 
-        $result = $this->makeRequest(['v1', 'holds', $requestId]);
-
-        $request = $result['data'];
-        $request['pickup_library_id'] = $pickUpLocation;
+        $request = [
+            'pickup_library_id' => $pickUpLocation
+        ];
 
         $result = $this->makeRequest(
             [
@@ -618,7 +617,7 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
         );
 
         if ($result['code'] >= 300) {
-            return $this->holdError($result['code'], $result['data']);
+            return $this->holdError($result['data']['error'] ?? 'hold_error_fail');
         }
         return ['success' => true];
     }
@@ -639,22 +638,26 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
         $requestId = $holdDetails['requestId'];
         $frozen = !empty($holdDetails['frozen']);
 
-        $result = $this->makeRequest(['v1', 'holds', $requestId]);
-
-        $request = $result['data'];
-        $request['suspended'] = $frozen;
-
-        $result = $this->makeRequest(
-            [
-                'path' => ['v1', 'holds', $requestId],
-                'json' => $request,
-                'method' => 'PUT',
-                'errors' => true
-            ]
-        );
+        if ($frozen) {
+            $result = $this->makeRequest(
+                [
+                    'path' => ['v1', 'holds', $requestId, 'suspension'],
+                    'method' => 'POST',
+                    'errors' => true
+                ]
+            );
+        } else {
+            $result = $this->makeRequest(
+                [
+                    'path' => ['v1', 'holds', $requestId, 'suspension'],
+                    'method' => 'DELETE',
+                    'errors' => true
+                ]
+            );
+        }
 
         if ($result['code'] >= 300) {
-            return $this->holdError($result['code'], $result['data']);
+            return $this->holdError($result['data']['error'] ?? 'hold_error_fail');
         }
         return ['success' => true];
     }
@@ -923,7 +926,7 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
                 && isset($holdings[$item['holding_id']])
             ) {
                 $holding = &$holdings[$item['holding_id']];
-                if ($holding['suppress']) {
+                if ($holding['suppressed']) {
                     continue;
                 }
             }
@@ -944,7 +947,7 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
             $callnumber = $this->getItemCallNumber($item);
 
             if (!$this->useHomeLibrary && null !== $item['holding_library_id']) {
-                $libraryid = $item['holding_library_id'];
+                $libraryId = $item['holding_library_id'];
             } else {
                 $libraryId = $item['home_library_id'];
             }
@@ -1004,12 +1007,12 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
         // Add holdings that don't have items
         if (!empty($holdings)) {
             foreach ($holdings as $holding) {
-                if ($holding['suppress'] || !empty($holding['_hasItems'])) {
+                if ($holding['suppressed'] || !empty($holding['_hasItems'])) {
                     continue;
                 }
                 $holdingData = $this->getHoldingData($holding, true);
                 $i++;
-                $entry = $this->createHoldingEntry($id, $holding, $i);
+                $entry = $this->createHoldingsEntry($id, $holding, $i);
                 $entry += $holdingData;
 
                 $statuses[] = $entry;
@@ -1137,7 +1140,7 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
                             foreach ($urls as $url) {
                                 ++$i;
                                 $entry
-                                    = $this->createHoldingEntry($id, $holding, $i);
+                                    = $this->createHoldingsEntry($id, $holding, $i);
                                 $entry['availability'] = true;
                                 $entry['location'] = implode('. ', $desc);
                                 $entry['locationhref'] = $url;
@@ -1176,7 +1179,7 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
             ?? 999;
         $bKey = $b['libraryId'] . '/' . $b['locationId'];
         $orderB = $this->holdingsLibraryOrder[$bKey]
-            ?? $this->holdingsBranchOrder[$b['libraryId']]
+            ?? $this->holdingsLibraryOrder[$b['libraryId']]
             ?? 999;
         $result = $orderA - $orderB;
 
@@ -1190,7 +1193,7 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
             $result = strcmp($a['location'], $b['location']);
         }
 
-        if (0 === $result && $this->sortItemsByEnumChron) {
+        if (0 === $result && $this->sortItemsBySerialIssue) {
             // Reverse chronological order
             $result = strnatcmp($b['number'] ?? '', $a['number'] ?? '');
         }
@@ -1243,5 +1246,314 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
                 ? 'request_change_done' : 'request_change_accepted',
             'sys_message' => ''
         ];
+    }
+
+    /**
+     * Create a holdings entry
+     *
+     * @param string $id       Bib ID
+     * @param array  $holdings Holdings record
+     * @param int    $sortKey  Sort key
+     *
+     * @return array
+     */
+    protected function createHoldingsEntry($id, $holdings, $sortKey)
+    {
+        $location = $this->getLibraryName($holdings['holding_library_id']);
+        $callnumber = '';
+        if (!empty($holdings['ccode'])
+            && !empty($this->config['Holdings']['display_ccode'])
+        ) {
+            $callnumber = $this->translateCollection(
+                $holdings['collection_code'],
+                $holdings['collection_code_description']
+                ?? $holdings['collection_code']
+            );
+        }
+
+        if ($this->groupHoldingsByLocation) {
+            $holdingLoc = $this->translateLocation(
+                $holdings['location'],
+                !empty($holdings['location_description'])
+                    ? $holdings['location_description'] : $holdings['location']
+            );
+            if ($holdingLoc) {
+                if ($location) {
+                    $location .= ', ';
+                }
+                $location .= $holdingLoc;
+            }
+        } else {
+            if ($callnumber) {
+                $callnumber .= ', ';
+            }
+            $callnumber .= $this->translateLocation(
+                $holdings['location'],
+                !empty($holdings['location_description'])
+                    ? $holdings['location_description']
+                    : $holdings['location']
+            );
+        }
+        if ($holdings['callnumber']) {
+            $callnumber .= ' ' . $holdings['callnumber'];
+        }
+        $callnumber = trim($callnumber);
+        $libraryId = $holdings['holding_library_id'];
+        $locationId = $holdings['location'];
+
+        return [
+            'id' => $id,
+            'item_id' => 'HLD_' . $holding['biblionumber'],
+            'location' => $location,
+            'requests_placed' => 0,
+            'status' => '',
+            'use_unknown_message' => true,
+            'availability' => false,
+            'duedate' => '',
+            'barcode' => '',
+            'callnumber' => $callnumber,
+            'sort' => $sortKey,
+            'libraryId' => $libraryId,
+            'locationId' => $locationId
+        ];
+    }
+
+    /**
+     * Create a serial entry
+     *
+     * @param array $subscription Subscription record
+     * @param int   $sortKey      Sort key
+     *
+     * @return array
+     */
+    protected function createSerialEntry($subscription, $sortKey)
+    {
+        $item = [
+            'home_library_id' => $subscription['library_id'],
+            'holding_library_id' => $subscription['library_id'],
+            'location' => $subscription['location'],
+            'location_description' => $subscription['location_description'] ?? null,
+            'callnumber' => $subscription['callnumber'] ?? null
+        ];
+        $location = $this->getItemLocationName($item);
+        $callnumber = $this->getItemCallNumber($item);
+
+        return [
+            'item_id' => "SERIAL_$sortKey",
+            'location' => $location,
+            'callnumber' => $callnumber,
+            'libraryId' => $subscription['library_id'],
+            'locationId' => $subscription['location'],
+            'requests_placed' => 0,
+            'availability' => false,
+            'use_unknown_message' => true,
+            'sort' => $sortKey,
+            'duedate' => null,
+            'status' => '',
+            'barcode' => null,
+        ];
+    }
+
+    /**
+     * Get a MARC record for the given holding or null if not available
+     *
+     * @param array $holding Holding
+     *
+     * @return \File_MARCXML
+     */
+    protected function getHoldingMarc(&$holding)
+    {
+        if (!isset($holding['_marcRecord'])) {
+            foreach ($holding['holdings_metadata'] ?? [$holding['metadata']]
+                as $metadata
+            ) {
+                if ('marcxml' === $metadata['format']
+                    && 'MARC21' === $metadata['schema']
+                ) {
+                    $marc = new \File_MARCXML(
+                        $metadata['metadata'],
+                        \File_MARCXML::SOURCE_STRING
+                    );
+                    $holding['_marcRecord'] = $marc->next();
+                    return $holding['_marcRecord'];
+                }
+            }
+            $holding['_marcRecord'] = null;
+        }
+        return $holding['_marcRecord'];
+    }
+
+    /**
+     * Get holding data from a holding record
+     *
+     * @param array $holding Holding record from Koha
+     *
+     * @return array
+     */
+    protected function getHoldingData(&$holding)
+    {
+        $marc = $this->getHoldingMarc($holding);
+        if (null === $marc) {
+            return [];
+        }
+
+        $marcDetails = [];
+
+        // Get Notes
+        $data = $this->getMARCData(
+            $marc,
+            isset($this->config['Holdings']['notes'])
+            ? $this->config['Holdings']['notes']
+            : '852z'
+        );
+        if ($data) {
+            $marcDetails['notes'] = $data;
+        }
+
+        // Get Summary (may be multiple lines)
+        $data = $this->getMARCData(
+            $marc,
+            isset($this->config['Holdings']['summary'])
+            ? $this->config['Holdings']['summary']
+            : '866a'
+        );
+        if ($data) {
+            $marcDetails['summary'] = $data;
+        }
+
+        // Get Supplements
+        if (isset($this->config['Holdings']['supplements'])) {
+            $data = $this->getMARCData(
+                $marc,
+                $this->config['Holdings']['supplements']
+            );
+            if ($data) {
+                $marcDetails['supplements'] = $data;
+            }
+        }
+
+        // Get Indexes
+        if (isset($this->config['Holdings']['indexes'])) {
+            $data = $this->getMARCData(
+                $marc,
+                $this->config['Holdings']['indexes']
+            );
+            if ($data) {
+                $marcDetails['indexes'] = $data;
+            }
+        }
+
+        // Get links
+        if (isset($this->config['Holdings']['links'])) {
+            $data = $this->getMARCData(
+                $marc,
+                $this->config['Holdings']['links']
+            );
+            if ($data) {
+                $marcDetails['links'] = $data;
+            }
+        }
+
+        // Make sure to return an empty array unless we have details to display
+        if (!empty($marcDetails)) {
+            $marcDetails['holdings_id'] = $holding['holding_id'];
+        }
+
+        return $marcDetails;
+    }
+
+    /**
+     * Get specified fields from a MARC Record
+     *
+     * @param object       $record     File_MARC object
+     * @param array|string $fieldSpecs Array or colon-separated list of
+     * field/subfield specifications (3 chars for field code and then subfields,
+     * e.g. 866az)
+     *
+     * @return string|array Results as a string if single, array if multiple
+     */
+    protected function getMARCData($record, $fieldSpecs)
+    {
+        if (!is_array($fieldSpecs)) {
+            $fieldSpecs = explode(':', $fieldSpecs);
+        }
+        $results = '';
+        foreach ($fieldSpecs as $fieldSpec) {
+            $fieldCode = substr($fieldSpec, 0, 3);
+            $subfieldCodes = substr($fieldSpec, 3);
+            if ($fields = $record->getFields($fieldCode)) {
+                foreach ($fields as $field) {
+                    if ($subfields = $field->getSubfields()) {
+                        $line = '';
+                        foreach ($subfields as $code => $subfield) {
+                            if (!strstr($subfieldCodes, $code)) {
+                                continue;
+                            }
+                            if ($line) {
+                                $line .= ' ';
+                            }
+                            $line .= $subfield->getData();
+                        }
+                        if ($line) {
+                            if (!$results) {
+                                $results = $line;
+                            } else {
+                                if (!is_array($results)) {
+                                    $results = [$results];
+                                }
+                                $results[] = $line;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $results;
+    }
+
+    /**
+     * Return summary of holdings items.
+     *
+     * @param array $holdings Parsed holdings items
+     *
+     * @return array summary
+     */
+    protected function getHoldingsSummary($holdings)
+    {
+        $availableTotal = $itemsTotal = $reservationsTotal = 0;
+        $requests = 0;
+        $locations = [];
+
+        foreach ($holdings as $item) {
+            if (!empty($item['availability'])) {
+                $availableTotal++;
+            }
+            if (strncmp($item['item_id'], 'HLD_', 4) !== 0) {
+                $itemsTotal++;
+            }
+            $locations[$item['location']] = true;
+            if ($item['requests_placed'] > $requests) {
+                $requests = $item['requests_placed'];
+            }
+        }
+
+        // Since summary data is appended to the holdings array as a fake item,
+        // we need to add a few dummy-fields that VuFind expects to be
+        // defined for all elements.
+
+        // Use a stupid location name to make sure this doesn't get mixed with
+        // real items that don't have a proper location.
+        $result = [
+           'available' => $availableTotal,
+           'total' => $itemsTotal,
+           'locations' => count($locations),
+           'availability' => null,
+           'callnumber' => null,
+           'location' => '__HOLDINGSSUMMARYLOCATION__'
+        ];
+        if (!empty($this->config['Holdings']['display_total_hold_count'])) {
+            $result['reservations'] = $requests;
+        }
+        return $result;
     }
 }
