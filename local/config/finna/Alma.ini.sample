@@ -10,6 +10,9 @@ apiKey = "your-key-here"
 ; password  Use password authentication with Alma internal users
 ; email     Username needs to be a valid email address for the user
 loginMethod = email
+; Whether to group patron's fees by type, status, title and barcode. This allows
+; grouping of similar fines to a single line. Disabled by default.
+;groupFees = true
 
 ; Translation prefix to use for codes coming from Alma. By default a prefix is not
 ; used, but a prefix may be used to distinguish the codes from any other
@@ -90,6 +93,10 @@ titleHoldBibLevels = "monograph:monographpart:serial:serialpart:collectionpart:i
 ; pickupLocationRules[] = "loc=MAIN:group=!STAFF:pickup=MAINLIB"
 ; pickupLocationRules[] = "loc=MAIN,SUB:group=STAFF:pickup=MAINLIB,RES_SHARE:work=true"
 ;pickupLocationRules[] = ""
+
+; By default a request cannot be canceled if the item is available for pickup.
+; Uncomment this to enable canceling of available requests.
+;allowCancelingAvailableRequests = true
 
 ; The "NewUser" section defines some default values that are used when creating an account
 ; in Alma via its API. This is only relevant if you use the authentication method "AlmaDatabase"
@@ -190,6 +197,15 @@ indexes = "868az"
 ; * can be used to denote all physical material types:
 ;hiddenProcessTypes[*] = "ACQ"
 
+; Optional kink to an external interface such as Primo. Replace at least SOMETHING
+; and VIEWID with correct values.
+;externalInterfaceUrl = "https://SOMETHING.primo.exlibrisgroup.com/discovery/fulldisplay?context=L&vid=VIEWID:VU1&docid=alma%%id%%"
+
+; Set to false to disable displaying title hold button in results list
+;display_title_hold_in_results = false
+
+; Set to false to disable title hold button in holdings tab
+;display_title_hold_in_holdings = false
 
 [OnlinePayment]
 ; Whether online payment is enabled. Default is false.

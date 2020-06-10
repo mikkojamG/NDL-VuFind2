@@ -93,6 +93,7 @@
             'collection_empty' => 'collection_empty',
             'error_occurred' => 'An error has occurred',
             'go_to_list' => 'go_to_list',
+            'hold_available' => 'hold_available',
             'libphonenumber_invalid' => 'libphonenumber_invalid',
             'libphonenumber_invalidcountry' => 'libphonenumber_invalidcountry',
             'libphonenumber_invalidregion' => 'libphonenumber_invalidregion',
@@ -200,7 +201,7 @@
            }
         }
 
-        $this->headScript()->appendScript(
+        $this->headScript()->prependScript(
           'var userIsLoggedIn = ' . ($this->auth()->isLoggedIn() ? 'true' : 'false') . ';'
         );
       }
@@ -210,6 +211,22 @@
           $this->headScript()->appendScript('var keepAliveInterval = '
             . $this->keepAlive());
           $this->headScript()->appendFile("keep_alive.js");
+      }
+
+      // If account ajax is active, load script and add language strings
+      $account = $this->auth()->getManager();
+      if ($account->ajaxEnabled()) {
+        $this->headScript()->appendFile("account_ajax.js");
+        $this->jsTranslations()->addStrings(
+          [
+            'account_checkouts_due' => 'account_checkouts_due',
+            'account_checkouts_overdue' => 'account_checkouts_overdue',
+            'account_has_alerts' => 'account_has_alerts',
+            'account_normal_checkouts' => 'account_normal_checkouts',
+            'account_requests_available' => 'account_requests_available',
+            'account_requests_in_transit' => 'account_requests_in_transit',
+          ]
+        );
       }
     ?>
     <?php
@@ -249,6 +266,7 @@ JS;
           $searchId = $this->searchMemory()->getLastSearchId();
           $searchType = $this->searchMemory()->getLastSearchType();
           $lookfor = $this->searchMemory()->getLastSearchLookfor();
+          $lastSearchClassId = $this->searchMemory()->getLastSearchClassId();
 
           //parse querystring to variables
           parse_str($url, $parsed);
@@ -272,23 +290,29 @@ JS;
                 ]
             );
           } else {
-            $filters = [];
-            foreach ($parsed as $key => $filter) {
-              if (strpos($key, 'filter') !== false) {
-                //used filters to filterArray
-                foreach ($filter as $value) {
-                  $filterArray = explode(':', $value, 2);
-                  $filterKey = $filterArray[0];
-                  $filterValue = trim($filterArray[1], '"');
-                  if (array_key_exists($filterKey, $filters)) {
-                    array_push($filters[$filterKey], $filterValue);
-                  } else {
-                    $filters[$filterKey] = [$filterValue];
+            if ($this->searchClassId === $lastSearchClassId) {
+              // Init filters only when backendId has not been changed since last search
+              $filters = [];
+              foreach ($parsed as $key => $filter) {
+                if (strpos($key, 'filter') !== false) {
+                  //used filters to filterArray
+                  foreach ($filter as $value) {
+                    $filterArray = explode(':', $value, 2);
+                    $filterKey = $filterArray[0];
+                    $filterValue = trim($filterArray[1], '"');
+                    if (array_key_exists($filterKey, $filters)) {
+                      array_push($filters[$filterKey], $filterValue);
+                    } else {
+                      $filters[$filterKey] = [$filterValue];
+                    }
                   }
+                } elseif (strpos($key, 'type') !== false) {
+                  $type = explode('#', $filter)[0];
                 }
-              } elseif (strpos($key, 'type') !== false) {
-                $type = explode('#', $filter)[0];
               }
+            } else {
+              // BackendId changed since last search, reset search term
+              $lookfor = '';
             }
 
             $this->layout()->searchbox = $this->context($this)->renderInContext(

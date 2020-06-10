@@ -172,6 +172,21 @@ $config = [
                     ]
                 ]
             ],
+            'solrauthrecord-feedback' => [
+                'type'    => 'Zend\Router\Http\Segment',
+                'options' => [
+                    'route'    => '/AuthorityRecord/[:id]/Feedback',
+                    'constraints' => [
+                        'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
+                    ],
+                    'defaults' => [
+                        'controller' => 'AuthorityRecord',
+                        'action'     => 'Feedback',
+                    ]
+                ]
+            ],
+
         ],
     ],
     'route_manager' => [
@@ -182,6 +197,8 @@ $config = [
     'controllers' => [
         'factories' => [
             'Finna\Controller\AjaxController' => 'VuFind\Controller\AjaxControllerFactory',
+            'Finna\Controller\AuthorityController' => 'VuFind\Controller\AbstractBaseFactory',
+            'Finna\Controller\AuthorityRecordController' => 'VuFind\Controller\AbstractBaseWithConfigFactory',
             'Finna\Controller\BarcodeController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\BrowseController' => 'VuFind\Controller\AbstractBaseWithConfigFactory',
             'Finna\Controller\CartController' => 'VuFind\Controller\CartControllerFactory',
@@ -210,6 +227,7 @@ $config = [
             'Finna\Controller\ListController' => 'Finna\Controller\ListControllerFactory',
         ],
         'aliases' => [
+            'AuthorityRecord' => 'Finna\Controller\AuthorityRecordController',
             'Barcode' => 'Finna\Controller\BarcodeController',
             'barcode' => 'Finna\Controller\BarcodeController',
             'Comments' => 'Finna\Controller\CommentsController',
@@ -228,6 +246,7 @@ $config = [
             'listpage' => 'Finna\Controller\ListController',
 
             // Overrides:
+            'VuFind\Controller\AuthorityController' => 'Finna\Controller\AuthorityController',
             'VuFind\Controller\AjaxController' => 'Finna\Controller\AjaxController',
             'VuFind\Controller\BrowseController' => 'Finna\Controller\BrowseController',
             'VuFind\Controller\CartController' => 'Finna\Controller\CartController',
@@ -272,6 +291,7 @@ $config = [
             'Finna\Feed\Feed' => 'Finna\Feed\FeedFactory',
             'Finna\Form\Form' => 'Finna\Form\FormFactory',
             'Finna\ILS\Connection' => 'VuFind\ILS\ConnectionFactory',
+            'Finna\ILS\Logic\Holds' => 'VuFind\ILS\Logic\LogicFactory',
             'Finna\LocationService\LocationService' => 'Finna\LocationService\LocationServiceFactory',
             'Finna\Mailer\Mailer' => 'VuFind\Mailer\Factory',
             'Finna\OAI\Server' => 'VuFind\OAI\ServerFactory',
@@ -304,6 +324,7 @@ $config = [
             'VuFind\Favorites\FavoritesService' => 'Finna\Favorites\FavoritesService',
             'VuFind\Form\Form' => 'Finna\Form\Form',
             'VuFind\ILS\Connection' => 'Finna\ILS\Connection',
+            'VuFind\ILS\Logic\Holds' => 'Finna\ILS\Logic\Holds',
             'VuFind\Mailer\Mailer' => 'Finna\Mailer\Mailer',
             'VuFind\OAI\Server' => 'Finna\OAI\Server',
             'VuFind\Record\Loader' => 'Finna\Record\Loader',
@@ -364,6 +385,8 @@ $config = [
                         'Finna\AjaxHandler\GetOrganisationPageFeedFactory',
                     'Finna\AjaxHandler\GetPiwikPopularSearches' =>
                         'Finna\AjaxHandler\GetPiwikPopularSearchesFactory',
+                    'Finna\AjaxHandler\GetRecordInfoByAuthority' =>
+                        'Finna\AjaxHandler\GetRecordInfoByAuthorityFactory',
                     'Finna\AjaxHandler\GetRecordVersions' =>
                         'Finna\AjaxHandler\GetRecordVersionsFactory',
                     'Finna\AjaxHandler\GetSearchTabsRecommendations' =>
@@ -404,6 +427,7 @@ $config = [
                     'getMyLists' => 'Finna\AjaxHandler\GetUserLists',
                     'getOrganisationInfo' => 'Finna\AjaxHandler\GetOrganisationInfo',
                     'getPiwikPopularSearches' => 'Finna\AjaxHandler\GetPiwikPopularSearches',
+                    'getRecordInfoByAuthority' => 'Finna\AjaxHandler\GetRecordInfoByAuthority',
                     'getRecordVersions' => 'Finna\AjaxHandler\GetRecordVersions',
                     'getSearchTabsRecommendations' => 'Finna\AjaxHandler\GetSearchTabsRecommendations',
                     'getSimilarRecords' => 'Finna\AjaxHandler\GetSimilarRecords',
@@ -521,7 +545,6 @@ $config = [
                     'Finna\ILS\Driver\Alma' => 'VuFind\ILS\Driver\AlmaFactory',
                     'Finna\ILS\Driver\AxiellWebServices' => 'Finna\ILS\Driver\AxiellWebServicesFactory',
                     'Finna\ILS\Driver\Demo' => 'VuFind\ILS\Driver\DemoFactory',
-                    'Finna\ILS\Driver\Gemini' => '\VuFind\ILS\Driver\DriverWithDateConverterFactory',
                     'Finna\ILS\Driver\KohaRest' => 'VuFind\ILS\Driver\KohaRestFactory',
                     'Finna\ILS\Driver\KohaRestSuomi' => 'Finna\ILS\Driver\KohaRestSuomiFactory',
                     'Finna\ILS\Driver\Mikromarc' => '\VuFind\ILS\Driver\DriverWithDateConverterFactory',
@@ -532,7 +555,6 @@ $config = [
                 ],
                 'aliases' => [
                     'axiellwebservices' => 'Finna\ILS\Driver\AxiellWebServices',
-                    'gemini' => 'Finna\ILS\Driver\Gemini',
                     'mikromarc' => 'Finna\ILS\Driver\Mikromarc',
                     'koharestsuomi' => 'Finna\ILS\Driver\KohaRestSuomi',
 
@@ -569,6 +591,7 @@ $config = [
                 'factories' => [
                     'Primo' => 'Finna\Search\Factory\PrimoBackendFactory',
                     'Solr' => 'Finna\Search\Factory\SolrDefaultBackendFactory',
+                    'SolrAuth' => 'Finna\Search\Factory\SolrAuthBackendFactory',
                     'Blender' => 'Finna\Search\Factory\BlenderBackendFactory',
                 ],
             ],
@@ -579,16 +602,19 @@ $config = [
                     'Finna\Search\Combined\Options' => 'VuFind\Search\OptionsFactory',
                     'Finna\Search\EDS\Options' => 'VuFind\Search\EDS\OptionsFactory',
                     'Finna\Search\Primo\Options' => 'VuFind\Search\OptionsFactory',
+                    'Finna\Search\SolrAuth\Options' => 'VuFind\Search\OptionsFactory',
                 ],
                 'aliases' => [
                     'VuFind\Search\Combined\Options' => 'Finna\Search\Combined\Options',
                     'VuFind\Search\EDS\Options' => 'Finna\Search\EDS\Options',
                     'VuFind\Search\Primo\Options' => 'Finna\Search\Primo\Options',
+                    'VuFind\Search\SolrAuth\Options' => 'Finna\Search\SolrAuth\Options',
 
                     // Counterpart for EmptySet Params:
                     'Finna\Search\EmptySet\Options' => 'VuFind\Search\EmptySet\Options',
                     'Finna\Search\MixedList\Options' => 'VuFind\Search\MixedList\Options',
                     'Blender' => 'Finna\Search\Blender\Options',
+                    'SolrAuth' => 'Finna\Search\SolrAuth\Options'
                 ]
             ],
             'search_params' => [
@@ -601,6 +627,7 @@ $config = [
                     'Finna\Search\Favorites\Params' => 'VuFind\Search\Params\ParamsFactory',
                     'Finna\Search\MixedList\Params' => 'VuFind\Search\Params\ParamsFactory',
                     'Finna\Search\Solr\Params' => 'Finna\Search\Solr\ParamsFactory',
+                    'Finna\Search\SolrAuth\Params' => 'Finna\Search\Solr\ParamsFactory',
                 ],
                 'aliases' => [
                     'VuFind\Search\Combined\Params' => 'Finna\Search\Combined\Params',
@@ -610,7 +637,10 @@ $config = [
                     'VuFind\Search\MixedList\Params' => 'Finna\Search\MixedList\Params',
                     'VuFind\Search\Solr\Params' => 'Finna\Search\Solr\Params',
 
+                    'VuFind\Search\SolrAuth\Params' => 'Finna\Search\SolrAuth\Params',
+
                     'Blender' => 'Finna\Search\Blender\Params',
+                    'SolrAuth' => 'Finna\Search\SolrAuth\Params'
                 ]
             ],
             'search_results' => [
@@ -620,12 +650,14 @@ $config = [
                     'Finna\Search\Favorites\Results' => 'Finna\Search\Favorites\ResultsFactory',
                     'Finna\Search\Primo\Results' => 'VuFind\Search\Results\ResultsFactory',
                     'Finna\Search\Solr\Results' => 'VuFind\Search\Solr\ResultsFactory',
+                    'Finna\Search\SolrAuth\Results' => 'VuFind\Search\Solr\ResultsFactory',
                 ],
                 'aliases' => [
                     'VuFind\Search\Combined\Results' => 'Finna\Search\Combined\Results',
                     'VuFind\Search\Favorites\Results' => 'Finna\Search\Favorites\Results',
                     'VuFind\Search\Primo\Results' => 'Finna\Search\Primo\Results',
                     'VuFind\Search\Solr\Results' => 'Finna\Search\Solr\Results',
+                    'VuFind\Search\SolrAuth\Results' => 'Finna\Search\SolrAuth\Results',
 
                     'Blender' => 'Finna\Search\Blender\Results',
                 ]
@@ -649,29 +681,34 @@ $config = [
                     'Finna\RecordDriver\EDS' =>
                         'VuFind\RecordDriver\NameBasedConfigFactory',
                     'Finna\RecordDriver\SolrDefault' =>
-                        'VuFind\RecordDriver\SolrDefaultFactory',
+                        'Finna\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\SolrMarc' =>
-                        'VuFind\RecordDriver\SolrDefaultFactory',
+                        'Finna\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\SolrAuthEaccpf' =>
-                        'VuFind\RecordDriver\SolrDefaultFactory',
+                        'Finna\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\SolrAuthForward' =>
-                        'VuFind\RecordDriver\SolrDefaultFactory',
+                        'Finna\RecordDriver\SolrDefaultFactory',
+                    'Finna\RecordDriver\SolrAuthMarc' =>
+                        'Finna\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\SolrEad' =>
-                        'VuFind\RecordDriver\SolrDefaultFactory',
+                        'Finna\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\SolrEad3' =>
-                        'VuFind\RecordDriver\SolrDefaultFactory',
+                        'Finna\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\SolrForward' =>
-                        'VuFind\RecordDriver\SolrDefaultFactory',
-                    'Finna\RecordDriver\SolrLido'
-                        => 'Finna\RecordDriver\SolrLidoFactory',
+                        'Finna\RecordDriver\SolrDefaultFactory',
+                    'Finna\RecordDriver\SolrLido' =>
+                        'Finna\RecordDriver\SolrDefaultFactory',
+                    'Finna\RecordDriver\SolrMarc' =>
+                        'Finna\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\SolrQdc' =>
-                        'VuFind\RecordDriver\SolrDefaultFactory',
+                        'Finna\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\Primo' =>
                         'VuFind\RecordDriver\NameBasedConfigFactory',
                 ],
                 'aliases' => [
                     'SolrAuthEaccpf' => 'Finna\RecordDriver\SolrAuthEaccpf',
                     'SolrAuthForwardAuthority' => 'Finna\RecordDriver\SolrAuthForward',
+                    'SolrAuthMarcAuthority' => 'Finna\RecordDriver\SolrAuthMarc',
                     'SolrEad' => 'Finna\RecordDriver\SolrEad',
                     'SolrEad3' => 'Finna\RecordDriver\SolrEad3',
                     'SolrForward' => 'Finna\RecordDriver\SolrForward',
@@ -692,6 +729,8 @@ $config = [
             ],
             'recordtab' => [
                 'factories' => [
+                    'Finna\RecordTab\AuthorityRecordsAuthor' => 'Finna\RecordTab\AuthorityRecordsFactory',
+                    'Finna\RecordTab\AuthorityRecordsTopic' => 'Finna\RecordTab\AuthorityRecordsFactory',
                     'Finna\RecordTab\LocationsEad3' => 'Finna\RecordTab\Factory::getLocationsEad3',
                     'Finna\RecordTab\Map' => 'Finna\RecordTab\Factory::getMap',
                     'Finna\RecordTab\UserComments' => 'Finna\RecordTab\Factory::getUserComments',
@@ -701,6 +740,8 @@ $config = [
                     'componentparts' => 'Finna\RecordTab\ComponentParts',
                 ],
                 'aliases' => [
+                    'authorityrecordsauthor' => 'Finna\RecordTab\AuthorityRecordsAuthor',
+                    'authorityrecordstopic' => 'Finna\RecordTab\AuthorityRecordsTopic',
                     'componentparts' => 'Finna\RecordTab\ComponentParts',
                     'LocationsEad3' => 'Finna\RecordTab\LocationsEad3',
                     'versions' => 'Finna\RecordTab\Versions',
@@ -745,7 +786,8 @@ $config = [
 ];
 
 $recordRoutes = [
-   'metalibrecord' => 'MetaLibRecord',
+    'metalibrecord' => 'MetaLibRecord',
+    'solrauthrecord' => 'AuthorityRecord'
 ];
 
 // Define dynamic routes -- controller => [route name => action]
@@ -756,7 +798,7 @@ $dynamicRoutes = [
 ];
 
 $staticRoutes = [
-    'Browse/Database', 'Browse/Journal',
+    'Browse/Database', 'Browse/Journal', 'Cover/Download',
     'LibraryCards/Recover', 'LibraryCards/Register',
     'LibraryCards/RegistrationDone', 'LibraryCards/RegistrationForm',
     'LibraryCards/ResetPassword',

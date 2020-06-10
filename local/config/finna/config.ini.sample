@@ -289,6 +289,16 @@ library_cards = true
 ; Whether to display the item barcode for each loan. Default is false.
 display_checked_out_item_barcode = true
 
+; This section controls features related to user accounts
+[Account]
+; Allow the user to set a home library through the Profile screen, which will
+; override ILS-provided default pickup locations throughout the system.
+set_home_library = true
+
+; Allow the user to "subscribe" to search history entries in order to receive
+; email notifications of new search results.
+schedule_searches = true
+
 ; This section allows you to determine how the users will authenticate.
 ; You can use an LDAP directory, the local ILS, the VuFind database (Database),
 ; Shibboleth, SIP2, CAS or some combination of these (via the MultiAuth option).
@@ -1571,14 +1581,30 @@ url = "https://my.surveypal.com/Finnasurvey"
 
 ; Authority info
 [Authority]
-; Uncomment to convert Author search links to authority links
-; (filters by author ID instead of doing a type = Author search)
-;authority_links = true
+; Whether to change author-search links to authority-links.
+; The link type is one of:
+;   - author  links to the authority page
+;   - search  performs a search filtered by authority ID
+; authority_links[*] can be used to set the link type for all authority types.
+; The global setting can be overridden with authority type specific settings
+; (author or subject), for example: authority_links[author] = page
+
+; authority_links[*] = page
 
 ; Uncomment to enable Authority info (displayed beside author links on record page)
 ;authority_info = true
 
 ; Mapping to Finna authority record types
 ; typeMap[elonet_henkilo] = Personal Name
-; typeMap[elonet_kokoonpano] = Group Name
+; typeMap[elonet_kokoonpano] = Corporate Name
 ; typeMap[elonet_yhtio] = Corporate Name
+
+; Record labels
+[RecordLabels]
+; Whether to show record labels in search result and record views.
+; showLabels[*] can be used to set the value for all backends.
+; Different backends can also have specific settings, e.g. showLabels[Primo].
+; Note that backend specific settings always win.
+showLabels[*] = false
+showLabels[Primo] = true
+

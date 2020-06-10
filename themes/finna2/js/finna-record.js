@@ -108,7 +108,7 @@ finna.record = (function finnaRecord() {
     }
 
     $.each(elements, function handleElement(idx, element) {
-      $(element).find('.holdings-load-indicator').removeClass('hidden');
+      $(element).removeClass('hidden');
       var url = VuFind.path + '/AJAX/JSON?method=getHoldingsDetails';
       $.ajax({
         dataType: 'json',
@@ -118,7 +118,23 @@ finna.record = (function finnaRecord() {
         url: url
       })
         .done(function onGetDetailsDone(response) {
-          $(element).html(response.data.html);
+          $(element).addClass('hidden');
+          var $group = $(element).parents('.holdings-group');
+          $group.find('.load-more-indicator-ajax').addClass('hidden');
+          // This can be called several times to load more items. Only update the hidden element.
+          $group.find('.holdings-details-ajax.hidden').html(response.data.details).removeClass('hidden');
+          var $itemsContainer = $group.find('.holdings-items-ajax.hidden');
+          $itemsContainer.html(response.data.items).removeClass('hidden');
+          checkRequestsAreValid($group.find('.expandedCheckRequest').removeClass('expandedCheckRequest'), 'Hold');
+          checkRequestsAreValid($group.find('.expandedCheckStorageRetrievalRequest').removeClass('expandedCheckStorageRetrievalRequest'), 'StorageRetrievalRequest');
+          checkRequestsAreValid($group.find('.expandedCheckILLRequest').removeClass('expandedCheckILLRequest'), 'ILLRequest');
+          VuFind.lightbox.bind($itemsContainer);
+          $group.find('.load-more-items-ajax').click(function loadMore() {
+            var $elem = $(this);
+            $elem.addClass('hidden');
+            $elem.siblings('.load-more-indicator-ajax').removeClass('hidden');
+            fetchHoldingsDetails($elem.parent());
+          });
         })
         .fail(function onGetDetailsFail() {
           $(element).text(VuFind.translate('error_occurred'));
@@ -283,7 +299,9 @@ finna.record = (function finnaRecord() {
       if (typeof callback === 'function') {
         callback(accordion);
       } else {
-        _toggleAccordion(accordion, true);
+        var mobile = $('.mobile-toolbar');
+        var initialLoad = mobile.length > 0 ? !mobile.is(':visible') : true;
+        _toggleAccordion(accordion, initialLoad);
       }
     }
   }
@@ -294,7 +312,6 @@ finna.record = (function finnaRecord() {
     var $tabContent = $recordTabs.find('.tab-content');
     var tabid = accordion.find('.accordion-toggle a').data('tab');
     $tabContent.insertAfter(accordion);
-
     if (accordion.hasClass('noajax') && !$recordTabs.find('.' + tabid + '-tab').length) {
       return true;
     }
@@ -302,7 +319,6 @@ finna.record = (function finnaRecord() {
     $('.record-accordions').find('.accordion.active').removeClass('active');
     accordion.addClass('active');
     $recordTabs.find('.tab-pane.active').removeClass('active');
-
     if ($recordTabs.find('.' + tabid + '-tab').length > 0) {
       $recordTabs.find('.' + tabid + '-tab').addClass('active');
       if (accordion.hasClass('initiallyActive')) {
@@ -367,7 +383,7 @@ finna.record = (function finnaRecord() {
             }
             $elem.removeClass('loading');
           })
-          .fail(function onGetSimilarRecordsFail() {
+          .fail(function onGetVersionsFail() {
             $elem.text(VuFind.translate('error_occurred'));
             $elem.removeClass('loading');
           });
@@ -386,6 +402,7 @@ finna.record = (function finnaRecord() {
     $(window).on('hashchange', applyRecordAccordionHash);
     loadSimilarRecords();
     initRecordVersions();
+    finna.authority.initAuthorityResultInfo();
   }
 
   var my = {

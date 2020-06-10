@@ -30,6 +30,9 @@
  */
 namespace Finna\View\Helper\Root;
 
+use Finna\View\Helper\Root\RecordDataFormatter\FieldGroupBuilder;
+use VuFind\RecordDriver\AbstractBase as RecordDriver;
+
 /**
  * Record driver data formatting view helper
  *
@@ -56,7 +59,7 @@ class RecordDataFormatter extends \VuFind\View\Helper\Root\RecordDataFormatter
             'Contributors', 'Extent', 'Format', 'Organisation', 'Published',
             'Online Access', 'Original Work', 'Assistants', 'Authors', 'Music',
             'Press Reviews', 'mainFormat', 'Access Restrictions', 'Edition',
-            'Archive', 'Archive Series', 'Archive Origination',
+            'Archive', 'Archive Series', 'Archive Origination', 'Archive Relations',
             'Item Description FWD', 'Published in', 'Relations', 'Source Collection'
         ];
         foreach ($filter as $key) {
@@ -79,7 +82,7 @@ class RecordDataFormatter extends \VuFind\View\Helper\Root\RecordDataFormatter
             'Original Work', 'Assistants', 'Authors', 'Music',
             'Press Reviews', 'Publisher', 'Access Restrictions', 'Unit ID',
             'Other Titles', 'Archive', 'Access', 'Item Description FWD',
-            'Publish date', 'Relations', 'Source Collection'
+            'Publish date', 'Relations', 'Archive Relations', 'Source Collection'
         ];
         foreach ($filter as $key) {
             unset($coreFields[$key]);
@@ -101,7 +104,7 @@ class RecordDataFormatter extends \VuFind\View\Helper\Root\RecordDataFormatter
             'Online Access', 'Original Work', 'Assistants', 'Authors', 'Music',
             'Press Reviews', 'Publisher', 'Access Restrictions', 'mainFormat',
             'Archive', 'Item Description FWD', 'Publish date', 'Relations',
-            'Source Collection', 'ISBN'
+            'Archive Relations', 'Source Collection', 'ISBN'
         ];
         foreach ($filter as $key) {
             unset($coreFields[$key]);
@@ -121,7 +124,8 @@ class RecordDataFormatter extends \VuFind\View\Helper\Root\RecordDataFormatter
         $filter = [
             'Contributors', 'Organisation', 'Inventory ID', 'Online Access',
             'Access', 'Item Description FWD', 'Physical Description',
-            'Published in', 'Published', 'Relations', 'Series', 'Source Collection'
+            'Published in', 'Published', 'Relations', 'Archive Relations', 'Series',
+            'Source Collection'
         ];
         foreach ($filter as $key) {
             unset($coreFields[$key]);
@@ -163,7 +167,8 @@ class RecordDataFormatter extends \VuFind\View\Helper\Root\RecordDataFormatter
         $filter = [
             'Contributors', 'Extent', 'Archive', 'Publisher', 'Organisation',
             'Item Description FWD', 'Published in', 'Published', 'Description',
-            'Format', 'Online Access', 'Relations', 'Access Restrictions'
+            'Format', 'Online Access', 'Relations', 'Archive Relations',
+            'Access Restrictions'
         ];
         foreach ($filter as $key) {
             unset($coreFields[$key]);
@@ -182,9 +187,9 @@ class RecordDataFormatter extends \VuFind\View\Helper\Root\RecordDataFormatter
     {
         $filter = [
             'Publisher','Edition', 'Extent', 'Archive', 'Published in', 'Format',
-            'Other Titles', 'Presenters', 'Organisation', 'Published', 'Authors',
+            'Other Titles', 'Presenters', 'Organisation', 'Authors',
             'Access Restrictions', 'Item Description', 'Publisher', 'Relations',
-            'Source Collection'
+            'Source Collection', 'Archive Relations'
         ];
         foreach ($filter as $key) {
             unset($coreFields[$key]);
@@ -205,7 +210,7 @@ class RecordDataFormatter extends \VuFind\View\Helper\Root\RecordDataFormatter
         $filter = [
             'Contributors', 'Format', 'Online Access',
             'Access', 'Item Description FWD', 'Physical Description',
-            'Published in', 'Published', 'Source Collection'
+            'Published in', 'Published', 'Source Collection', 'Archive Relations'
         ];
         foreach ($filter as $key) {
             unset($coreFields[$key]);
@@ -216,5 +221,61 @@ class RecordDataFormatter extends \VuFind\View\Helper\Root\RecordDataFormatter
             : $this->filterEAD3Fields($coreFields);
 
         return $coreFields;
+    }
+
+    /**
+     * Helper method for getting a spec of field groups.
+     *
+     * @param array  $groups        Array specifying the groups.
+     * @param array  $lines         All lines used in the groups.
+     * @param string $template      Default group template to use if not
+     *                              specified (optional).
+     * @param array  $options       Additional options to use if not specified
+     *                              for a group (optional).
+     * @param array  $unusedOptions Additional options for unused lines
+     *                              (optional).
+     *
+     * @return array
+     */
+    public function getGroupedFields($groups, $lines,
+        $template = 'core-field-group-fields.phtml', $options = [],
+        $unusedOptions = []
+    ) {
+        $fieldGroups = new FieldGroupBuilder();
+        $fieldGroups->setGroups(
+            $groups, $lines, $template, $options, $unusedOptions
+        );
+        return $fieldGroups->getArray();
+    }
+
+    /**
+     * Create formatted key/value data based on a record driver and grouped
+     * field spec.
+     *
+     * @param RecordDriver $driver Record driver object.
+     * @param array        $groups Grouped formatting specification.
+     *
+     * @return array
+     *
+     * @throws \Exception
+     */
+    public function getGroupedData(RecordDriver $driver, array $groups)
+    {
+        // Apply the group spec.
+        $result = [];
+        foreach ($groups as $group) {
+            $lines = $group['lines'];
+            $data = $this->getData($driver, $lines);
+            // Render the fields in the group as the value for the group.
+            $value = $this->renderRecordDriverTemplate(
+                $driver, $data, ['template' => $group['template']]
+            );
+            $result[] = [
+                'label' => $group['label'],
+                'value' => $value,
+                'context' => $group['context'],
+            ];
+        }
+        return $result;
     }
 }

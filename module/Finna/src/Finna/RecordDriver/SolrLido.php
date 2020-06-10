@@ -4,7 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) The National Library of Finland 2015-2017.
+ * Copyright (C) The National Library of Finland 2015-2020.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -24,6 +24,7 @@
  * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @author   Konsta Raunio <konsta.raunio@helsinki.fi>
+ * @author   Juha Luoma <juha.luoma@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:record_drivers Wiki
  */
@@ -37,6 +38,7 @@ namespace Finna\RecordDriver;
  * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @author   Konsta Raunio <konsta.raunio@helsinki.fi>
+ * @author   Juha Luoma <juha.luoma@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:record_drivers Wiki
  */
@@ -52,13 +54,6 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
     protected $simpleXML;
 
     /**
-     * Date Converter
-     *
-     * @var \VuFind\Date\Converter
-     */
-    protected $dateConverter;
-
-    /**
      * Blacklist for undisplayable file formats
      *
      * @var array
@@ -66,16 +61,11 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
     protected $fileFormatBlackList = [];
 
     /**
-     * Attach date converter
+     * Images cache
      *
-     * @param \VuFind\Date\Converter $dateConverter Date Converter
-     *
-     * @return void
+     * @var array
      */
-    public function attachDateConverter($dateConverter)
-    {
-        $this->dateConverter = $dateConverter;
-    }
+    protected $cachedImages;
 
     /**
      * Constructor
@@ -188,6 +178,10 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
      */
     public function getAllImages($language = 'fi')
     {
+        if (null !== $this->cachedImages) {
+            return $this->cachedImages;
+        }
+
         $result = [];
         $defaultRights = $this->getImageRights($language, true);
         foreach ($this->getSimpleXML()->xpath(
@@ -197,7 +191,6 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
             if (empty($resourceSet->resourceRepresentation->linkResource)) {
                 continue;
             }
-
             // Process rights first since we may need to duplicate them if there
             // are multiple images in the set (non-standard)
             $rights = [];
@@ -223,17 +216,20 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
                     $rights['description'][] = $term;
                 }
             }
-
             if (empty($rights)) {
                 $rights = $defaultRights;
             }
-
             $urls = [];
+            $highResolution = [];
             foreach ($resourceSet->resourceRepresentation as $representation) {
                 $linkResource = $representation->linkResource;
-
+                $attributes = $representation->attributes();
+                if (empty((string)$linkResource)) {
+                    continue;
+                }
                 if (!empty($this->fileFormatBlackList)
                     && isset($linkResource->attributes()->formatResource)
+                    && $attributes->type !== 'image_original'
                 ) {
                     $format = trim(
                         (string)$linkResource->attributes()->formatResource
@@ -244,7 +240,7 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
                         continue;
                     }
                 }
-                $attributes = $representation->attributes();
+
                 $size = '';
                 switch ($attributes->type) {
                 case 'image_thumb':
@@ -261,6 +257,9 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
                     break;
                 case 'image_master':
                     $size = 'master';
+                    break;
+                case 'image_original':
+                    $size = 'original';
                     break;
                 }
 
@@ -280,6 +279,22 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
                 } else {
                     $urls[$size] = $url;
                 }
+
+                if ($size === 'master' || $size === 'original') {
+                    $currentHiRes = [];
+                    $currentHiRes['data']
+                        = $this->formatImageMeasurements(
+                            $representation->resourceMeasurementsSet
+                        );
+                    $currentHiRes['url'] = (string)$linkResource;
+                    if (!empty($resourceSet->resourceID)) {
+                        $currentHiRes['resourceID']
+                            = (int)$resourceSet->resourceID;
+                    }
+                    $format = (string)$linkResource->attributes()->formatResource;
+
+                    $highResolution[$size][$format ?: 'jpg'] = $currentHiRes;
+                }
             }
             // If current set has no images to show, continue to next one
             if (empty($urls)) {
@@ -293,14 +308,54 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
                 $urls['medium'] = $urls['small']
                     ?? $urls['large'];
             }
-
             $result[] = [
                 'urls' => $urls,
                 'description' => '',
-                'rights' => $rights
+                'rights' => $rights,
+                'highResolution' => $highResolution
             ];
         }
-        return $result;
+        return $this->cachedImages = $result;
+    }
+
+    /**
+     * Function to format given resourceMeasurementsSet to readable format
+     *
+     * @param object $measurements of the image
+     * @param string $language     to search data for
+     *
+     * @return array
+     */
+    public function formatImageMeasurements($measurements, $language = 'en')
+    {
+        $data = [];
+        foreach ($measurements as $set) {
+            if (!isset($set->measurementValue)
+                || empty((string)$set->measurementValue)
+            ) {
+                continue;
+            }
+            $type = '';
+            foreach ($set->measurementType as $t) {
+                if ((string)$t->attributes()->lang !== $language) {
+                    continue;
+                }
+                $type = trim((string)$t);
+                break;
+            }
+            $unit = '';
+            foreach ($set->measurementUnit as $u) {
+                if ((string)$u->attributes()->lang !== $language) {
+                    continue;
+                }
+                $unit = trim((string)$u);
+                break;
+            }
+
+            $value = trim((string)$set->measurementValue);
+            $data[$type] = compact('unit', 'value');
+        }
+        return $data;
     }
 
     /**
@@ -379,13 +434,19 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
                     if (strlen($endDate) == 7) {
                         $endDateType = 'Y-m';
                     }
-                    $date = $this->dateConverter->convertToDisplayDate(
-                        $startDateType, $startDate
-                    );
+
+                    $date = $this->dateConverter
+                        ? $this->dateConverter->convertToDisplayDate(
+                            $startDateType, $startDate
+                        )
+                        : $startDate;
+
                     if ($startDate != $endDate) {
-                        $date .= '-' . $this->dateConverter->convertToDisplayDate(
-                            $endDateType, $endDate
-                        );
+                        $date .= '-' . ($this->dateConverter
+                            ? $this->dateConverter->convertToDisplayDate(
+                                $endDateType, $endDate
+                            )
+                            : $endDate);
                     }
                 }
             }

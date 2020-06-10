@@ -161,6 +161,7 @@
         $openUrl = $this->openUrl($driver, 'results');
         $openUrlActive = $openUrl->isActive();
         ?>
+        <?=$this->render('record/labels.phtml', ['labels' => $this->driver->getRecordLabels()]); ?>
         <div>
             <?=$this->record($this->driver)->getOnlineUrls('results')?>
         </div>
@@ -223,7 +224,7 @@
             <?=$this->render('list/list-notes.phtml')?>
           </div>
         </div>
-        <div class="clearfix visible-xs"></div>
+        <div class="clearfix"></div>
       </div>
     </div>
     <?php if ($thumbnail && $thumbnailAlignment == 'right'): ?>

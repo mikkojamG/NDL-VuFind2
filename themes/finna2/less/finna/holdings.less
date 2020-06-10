@@ -28,7 +28,7 @@
         margin-right: 10px;
     }
     .text-error {
-        color: @state-danger-text;
+        color: @brand-danger;
     }
 }
 .no-branches .groupLocation {
@@ -56,6 +56,11 @@
             float: left;
         }
     }
+}
+
+.external-interface-link {
+    clear: both;
+    padding-top: 8px;
 }
 
 // Result list
@@ -272,9 +277,6 @@
     .copy-details {
         .clearfix();
         padding: 8px 15px;
-        &.collapsed {
-           display: none;
-        }
         &:nth-child(odd):not(.group-heading) {
             background-color: @gray-ultralight;
         }
@@ -346,6 +348,9 @@
         @media (max-width: @screen-xs-max) {
             margin-top: 2px;
         }
+    }
+    .collapsed {
+        display: none;
     }
 }
 .callnumAndLocation {
