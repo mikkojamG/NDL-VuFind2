@@ -360,6 +360,7 @@ finna.myList = (function finnaMyList() {
 
     var parent = input.closest('.myresearch-notes');
     var spinner = parent.find('.fa-pen');
+
     toggleSpinner(spinner, true);
 
     $.ajax({
@@ -374,12 +375,17 @@ finna.myList = (function finnaMyList() {
         }
 
         var hasNotes = params.notes !== '';
+
         parent.find('.note-info').toggleClass('hide', !hasNotes);
+
         input.data('empty', hasNotes === '' ? '1' : '0');
+
         if (!hasNotes) {
-          input.text(VuFind.translate('add_note'));
+          input.find('[data-markdown]').text(VuFind.translate('add_note'));
         }
+
         toggleTitleEditable(true);
+
         save = false;
       })
       .fail(function onEditListResourceFail() {
@@ -422,7 +428,9 @@ finna.myList = (function finnaMyList() {
 
         currentVal = handleTruncateField(currentVal, false);
         textArea.text(currentVal);
+
         container.hide();
+
         textArea.insertAfter(container);
         if (editor) {
           editor = null;
@@ -438,6 +446,7 @@ finna.myList = (function finnaMyList() {
         };
 
         editor = new SimpleMDE(editorSettings);
+
         currentVal = editor.value();
 
         if (currentVal.indexOf(truncateTag) !== -1) {
@@ -478,6 +487,7 @@ finna.myList = (function finnaMyList() {
         // Close editor and save when user clicks outside the editor
         $(document).one('click', function onClickDocument() {
           var markdown = editor.value();
+
           var resultHtml = SimpleMDE.prototype.markdown(markdown);
 
           editor.toTextArea();
@@ -489,8 +499,11 @@ finna.myList = (function finnaMyList() {
           container.data('empty', markdown.length === 0 ? '1' : '0');
 
           resultHtml = handleTruncateField(resultHtml);
+
           container.html(resultHtml);
+
           finna.layout.initTruncate(container);
+
           preview.remove();
 
           callback(markdown);
