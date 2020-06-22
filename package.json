@@ -19,5 +19,9 @@
   },
   "devDependencies": {
     "grunt-contrib-watch": "^1.1.0"
+  },
+  "scripts": {
+    "watch:lessdev": "grunt watch:lessdev",
+    "build:lessdev": "grunt lessdev"
   }
 }
