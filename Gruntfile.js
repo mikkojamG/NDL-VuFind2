@@ -1,9 +1,9 @@
-module.exports = function (grunt) {
-  const fs = require('fs');
+module.exports = function(grunt) {
+  const fs = require("fs");
 
   // Local custom tasks
-  if (fs.existsSync('./Gruntfile.local.js')) {
-    require('./Gruntfile.local.js')(grunt);
+  if (fs.existsSync("./Gruntfile.local.js")) {
+    require("./Gruntfile.local.js")(grunt);
   }
 
   require('jit-grunt')(grunt); // Just in time library loading
@@ -18,12 +18,7 @@ module.exports = function (grunt) {
     retVal.push(parts.join('/'));
 
     // Iterate through theme.config.php files collecting parent themes in search path:
-    while (
-      (config = fs.readFileSync(
-        'themes/' + parts[1] + '/theme.config.php',
-        'UTF-8'
-      ))
-    ) {
+    while (config = fs.readFileSync("themes/" + parts[1] + "/theme.config.php", "UTF-8")) {
       // First identify mixins:
       var mixinMatches = config.match(/["']mixins["']\s*=>\s*\[([^\]]+)\]/);
       if (mixinMatches !== null) {
@@ -49,22 +44,20 @@ module.exports = function (grunt) {
   }
 
   var fontAwesomePath = '"../../bootstrap3/css/fonts"';
-  var lessFileSettings = [
-    {
-      expand: true,
-      src: 'themes/*/less/compiled.less',
-      rename: function (dest, src) {
-        return src.replace('/less/', '/css/').replace('.less', '.css');
-      }
-    },
-    {
-      expand: true,
-      src: 'themes/finna2/less/finna.less',
-      rename: function (dest, src) {
-        return src.replace('/less/', '/css/').replace('.less', '.css');
-      }
+  var lessFileSettings = [{
+    expand: true,
+    src: "themes/*/less/compiled.less",
+    rename: function (dest, src) {
+      return src.replace('/less/', '/css/').replace('.less', '.css');
     }
-  ];
+  },
+  {
+    expand: true,
+    src: 'themes/finna2/less/finna.less',
+    rename: function (dest, src) {
+      return src.replace('/less/', '/css/').replace('.less', '.css');
+    }
+  }];
 
   grunt.initConfig({
     // LESS compilation
@@ -82,7 +75,8 @@ module.exports = function (grunt) {
     },
     // Less with maps
     lessdev: {
-      less: {}
+      less: {
+      }
     },
     // SASS compilation
     scss: {
@@ -124,57 +118,52 @@ module.exports = function (grunt) {
             // Activate SCSS
             {
               pattern: /\/\* #SCSS>/gi,
-              replacement: '/* #SCSS> */',
+              replacement: "/* #SCSS> */",
               order: -1 // Do before anything else
             },
             {
               pattern: /<#SCSS \*\//gi,
-              replacement: '/* <#SCSS */',
+              replacement: "/* <#SCSS */",
               order: -1
             },
             // Deactivate LESS
             {
               pattern: /\/\* #LESS> \*\//gi,
-              replacement: '/* #LESS>',
+              replacement: "/* #LESS>",
               order: -1
             },
             {
               pattern: /\/\* <#LESS \*\//gi,
-              replacement: '<#LESS */',
+              replacement: "<#LESS */",
               order: -1
             },
-            {
-              // Change separator in @include statements
+            { // Change separator in @include statements
               pattern: /@include ([^\(]+)\(([^\)]+)\);/gi,
               replacement: function mixinCommas(match, $1, $2) {
                 return '@include ' + $1 + '(' + $2.replace(/;/g, ',') + ');';
               },
               order: 4 // after defaults included in less-to-sass
             },
-            {
-              // Remove unquote
+            { // Remove unquote
               pattern: /unquote\("([^"]+)"\)/gi,
               replacement: function ununquote(match, $1) {
                 return $1;
               },
               order: 4
             },
-            {
-              // Inline &:extends converted
+            { // Inline &:extends converted
               pattern: /&:extend\(([^\)]+)\)/gi,
               replacement: '@extend $1',
               order: 4
             },
-            {
-              // Wrap variables in calcs with #{}
+            { // Wrap variables in calcs with #{}
               pattern: /calc\([^;]+/gi,
               replacement: function calcVariables(match) {
                 return match.replace(/(\$[^ ]+)/gi, '#{$1}');
               },
               order: 4
             },
-            {
-              // Remove !default from extends (icons.scss)
+            { // Remove !default from extends (icons.scss)
               pattern: /@extend ([^;}]+) !default;/gi,
               replacement: '@extend $1;',
               order: 5
@@ -223,35 +212,27 @@ module.exports = function (grunt) {
   grunt.registerMultiTask('scss', function sassScan() {
     var sassConfig = {},
       path = require('path'),
-      themeList = fs
-        .readdirSync(path.resolve('themes'))
-        .filter(function (theme) {
-          return fs.existsSync(
-            path.resolve('themes/' + theme + '/scss/compiled.scss')
-          );
-        });
+      themeList = fs.readdirSync(path.resolve('themes')).filter(function (theme) {
+        return fs.existsSync(path.resolve('themes/' + theme + '/scss/compiled.scss'));
+      });
 
     for (var i in themeList) {
       var config = {
         options: {
           outputStyle: 'compressed'
         },
-        files: [
-          {
-            expand: true,
-            cwd: path.join('themes', themeList[i], 'scss'),
-            src: ['compiled.scss'],
-            dest: path.join('themes', themeList[i], 'css'),
-            ext: '.css'
-          }
-        ]
+        files: [{
+          expand: true,
+          cwd: path.join('themes', themeList[i], 'scss'),
+          src: ['compiled.scss'],
+          dest: path.join('themes', themeList[i], 'css'),
+          ext: '.css'
+        }]
       };
       for (var key in this.data.options) {
         config.options[key] = this.data.options[key] + '';
       }
-      config.options.includePaths = getLoadPaths(
-        'themes/' + themeList[i] + '/scss/compiled.scss'
-      );
+      config.options.includePaths = getLoadPaths('themes/' + themeList[i] + '/scss/compiled.scss');
 
       sassConfig[themeList[i]] = config;
     }
