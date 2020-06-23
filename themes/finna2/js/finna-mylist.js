@@ -393,12 +393,9 @@ finna.myList = (function finnaMyList() {
         var textArea = $('<textarea/>');
         var currentVal = null;
         currentVal = container.data('markdown');
-
         currentVal = handleTruncateField(currentVal, false);
         textArea.text(currentVal);
-
         container.hide();
-
         textArea.insertAfter(container);
         if (editor) {
           editor = null;
