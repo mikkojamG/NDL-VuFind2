@@ -356,104 +356,104 @@ finna.myList = (function finnaMyList() {
 
   function initEditableMarkdownField(element, callback) {
     element.find('.editable').unbind('click').click(function onClickEditable(e) {
-        if (save) {
-          // Do not open the editor when save is in progress.
-          return;
+      if (save) {
+        // Do not open the editor when save is in progress.
+        return;
+      }
+
+      if (!editor && e.target.nodeName === 'A') {
+        // Do not open the editor when a link within the editable area was clicked.
+        e.stopPropagation();
+        return;
+      }
+
+      if (editor) {
+        // Close active editor
+        $(document).trigger('click');
+        return;
+      }
+
+      toggleTitleEditable(false);
+
+      element.toggleClass('edit', true);
+      var container = element.find('[data-markdown]');
+
+      var textArea = $('<textarea/>');
+      var currentVal = null;
+      currentVal = container.data('markdown');
+      currentVal = handleTruncateField(currentVal, false);
+      textArea.text(currentVal);
+      container.hide();
+      textArea.insertAfter(container);
+      if (editor) {
+        editor = null;
+      }
+
+      var editorSettings = {
+        autoDownloadFontAwesome: false,
+        autofocus: true,
+        element: textArea[0],
+        toolbar: mdeToolbar,
+        spellChecker: false,
+        status: false
+      };
+
+      editor = new SimpleMDE(editorSettings);
+      currentVal = editor.value();
+
+      if (currentVal.indexOf(truncateTag) !== -1) {
+        $('.fa-pagebreak').addClass('pagebreak-toggled');
+      }
+      // Preview
+      var html = SimpleMDE.prototype.markdown(editor.value());
+      html = handleTruncateField(html);
+      $('.markdown-preview').remove();
+      var preview = $('<div/>').addClass('markdown-preview').html($('<div/>').addClass('data').html(html));
+      $('<div/>').addClass('preview').text(VuFind.translate('preview').toUpperCase()).prependTo(preview);
+      preview.appendTo(element);
+      finna.layout.initTruncate(preview);
+      initDetailsElements();
+
+      editor.codemirror.on('change', function onChangeEditor() {
+        var result = SimpleMDE.prototype.markdown(editor.value());
+        if (result.indexOf(truncateTag) !== -1) {
+          if (!$('.fa-pagebreak').hasClass('pagebreak-toggled')) {
+            $('.fa-pagebreak').addClass('pagebreak-toggled');
+          }
+        } else {
+          $('.fa-pagebreak').removeClass('pagebreak-toggled');
         }
-
-        if (!editor && e.target.nodeName === 'A') {
-          // Do not open the editor when a link within the editable area was clicked.
-          e.stopPropagation();
-          return;
-        }
-
-        if (editor) {
-          // Close active editor
-          $(document).trigger('click');
-          return;
-        }
-
-        toggleTitleEditable(false);
-
-        element.toggleClass('edit', true);
-        var container = element.find('[data-markdown]');
-
-        var textArea = $('<textarea/>');
-        var currentVal = null;
-        currentVal = container.data('markdown');
-        currentVal = handleTruncateField(currentVal, false);
-        textArea.text(currentVal);
-        container.hide();
-        textArea.insertAfter(container);
-        if (editor) {
-          editor = null;
-        }
-
-        var editorSettings = {
-          autoDownloadFontAwesome: false,
-          autofocus: true,
-          element: textArea[0],
-          toolbar: mdeToolbar,
-          spellChecker: false,
-          status: false
-        };
-
-        editor = new SimpleMDE(editorSettings);
-        currentVal = editor.value();
-
-        if (currentVal.indexOf(truncateTag) !== -1) {
-          $('.fa-pagebreak').addClass('pagebreak-toggled');
-        }
-        // Preview
-        var html = SimpleMDE.prototype.markdown(editor.value());
-        html = handleTruncateField(html);
-        $('.markdown-preview').remove();
-        var preview = $('<div/>').addClass('markdown-preview').html($('<div/>').addClass('data').html(html));
-        $('<div/>').addClass('preview').text(VuFind.translate('preview').toUpperCase()).prependTo(preview);
-        preview.appendTo(element);
+        result = handleTruncateField(result);
+        preview.find('.data').html(result);
         finna.layout.initTruncate(preview);
         initDetailsElements();
-
-        editor.codemirror.on('change', function onChangeEditor() {
-          var result = SimpleMDE.prototype.markdown(editor.value());
-          if (result.indexOf(truncateTag) !== -1) {
-            if (!$('.fa-pagebreak').hasClass('pagebreak-toggled')) {
-              $('.fa-pagebreak').addClass('pagebreak-toggled');
-            }
-          } else {
-            $('.fa-pagebreak').removeClass('pagebreak-toggled');
-          }
-          result = handleTruncateField(result);
-          preview.find('.data').html(result);
-          finna.layout.initTruncate(preview);
-          initDetailsElements();
-        });
-
-        // Close editor and save when user clicks outside the editor
-        $(document).one('click', function onClickDocument() {
-          var markdown = editor.value();
-          var resultHtml = SimpleMDE.prototype.markdown(markdown);
-
-          editor.toTextArea();
-          editor = null;
-          element.toggleClass('edit', false).find('textarea').remove();
-
-          container.show();
-          container.data('markdown', markdown);
-          container.data('empty', markdown.length === 0 ? '1' : '0');
-          resultHtml = handleTruncateField(resultHtml);
-          container.html(resultHtml);
-          finna.layout.initTruncate(container);
-          preview.remove();
-
-          callback(markdown);
-        });
-        $('.CodeMirror-code').focus();
-        // Prevent clicks within the editor area from bubbling up and closing the editor.
-        element.closest('.markdown').unbind('click').click(function onClickEditor() {
-            return false;
-          });
       });
+
+      // Close editor and save when user clicks outside the editor
+      $(document).one('click', function onClickDocument() {
+        var markdown = editor.value();
+        var resultHtml = SimpleMDE.prototype.markdown(markdown);
+
+        editor.toTextArea();
+        editor = null;
+        element.toggleClass('edit', false).find('textarea').remove();
+
+        container.show();
+        container.data('markdown', markdown);
+        container.data('empty', markdown.length === 0 ? '1' : '0');
+        resultHtml = handleTruncateField(resultHtml);
+        container.html(resultHtml);
+        finna.layout.initTruncate(container);
+        preview.remove();
+
+        callback(markdown);
+      });
+      $('.CodeMirror-code').focus();
+      // Prevent clicks within the editor area from bubbling up and closing the editor.
+      element.closest('.markdown').unbind('click').click(function onClickEditor() {
+        return false;
+      });
+    });
   }
 
   function initEditComponents() {
@@ -473,8 +473,8 @@ finna.myList = (function finnaMyList() {
 
     // Checkbox select all
     $('.mylist-controls-bar .checkbox-select-all').unbind('change').change(function onChangeSelectAll() {
-        $('.myresearch-row .checkbox-select-item').prop('checked', $(this).is(':checked'));
-      });
+      $('.myresearch-row .checkbox-select-item').prop('checked', $(this).is(':checked'));
+    });
 
     if (!isDefaultList) {
       toggleTitleEditable(true);
@@ -485,47 +485,47 @@ finna.myList = (function finnaMyList() {
 
       // list visibility
       $(".list-visibility input[type='radio']").unbind('change').change(function onChangeVisibility() {
-          updateList({}, refreshLists, 'visibility');
-        });
+        updateList({}, refreshLists, 'visibility');
+      });
 
       // delete list
       var active = $('.mylist-bar').find('a.active');
       active.find('.remove').unbind('click').click(function onClickRemove(e) {
-          var target = $(this);
-          var form = $('.delete-list');
-          var prompt = form.find('.dropdown-menu');
+        var target = $(this);
+        var form = $('.delete-list');
+        var prompt = form.find('.dropdown-menu');
 
-          function repositionPrompt() {
-            var pos = target.offset();
-            var left = $(window).width() / 2 - prompt.width() / 2;
+        function repositionPrompt() {
+          var pos = target.offset();
+          var left = $(window).width() / 2 - prompt.width() / 2;
 
-            prompt.css({
-              'left': left,
-              'top': pos.top + 30
-            });
-          }
+          prompt.css({
+            'left': left,
+            'top': pos.top + 30
+          });
+        }
 
-          function initRepositionListener() {
-            $(window).resize(repositionPrompt);
-          }
+        function initRepositionListener() {
+          $(window).resize(repositionPrompt);
+        }
 
-          prompt.find('.confirm').unbind('click').click(function onClickConfirm(ev) {
-              form.submit();
-              ev.preventDefault();
-            });
-          prompt.find('.cancel').unbind('click').click(function onClickCancel(ev) {
-              $(window).off('resize', repositionPrompt);
-              prompt.hide();
-              $('.remove-favorite-list').focus();
-              ev.preventDefault();
-            });
-
-          repositionPrompt();
-          initRepositionListener();
-          prompt.show();
-          prompt.find('.confirm a').focus();
-          e.preventDefault();
+        prompt.find('.confirm').unbind('click').click(function onClickConfirm(ev) {
+          form.submit();
+          ev.preventDefault();
         });
+        prompt.find('.cancel').unbind('click').click(function onClickCancel(ev) {
+          $(window).off('resize', repositionPrompt);
+          prompt.hide();
+          $('.remove-favorite-list').focus();
+          ev.preventDefault();
+        });
+
+        repositionPrompt();
+        initRepositionListener();
+        prompt.show();
+        prompt.find('.confirm a').focus();
+        e.preventDefault();
+      });
     }
 
     $('.add-new-list .icon').on('click', function createNewList() {
@@ -559,11 +559,11 @@ finna.myList = (function finnaMyList() {
 
     // add resource to list
     $('.mylist-functions #add-to-list').unbind('change').change(function onChangeAddToList(/*e*/) {
-        var val = $(this).val();
-        if (val !== '') {
-          addResourcesToList(val);
-        }
-      });
+      var val = $(this).val();
+      if (val !== '') {
+        addResourcesToList(val);
+      }
+    });
 
     function adjustNoteOverlaySize(noteOverlay) {
       var container = noteOverlay.closest('.grid-body');
@@ -576,20 +576,20 @@ finna.myList = (function finnaMyList() {
 
     // hide/show notes on images
     $('.notes').not(':data(inited)').each(function initNotes() {
-        $(this).data('inited', '1');
-        var noteButton = $(this).closest('.grid-body').find('.note-button');
-        var noteOverlay = $(this).closest('.grid-body').find('.note-overlay');
-        noteButton.click(function onClick() {
-          adjustNoteOverlaySize(noteOverlay);
-          if (!noteOverlay.hasClass('note-show')) {
-            noteButton.addClass('note-show');
-            noteOverlay.addClass('note-show');
-          } else {
-            noteButton.removeClass('note-show');
-            noteOverlay.removeClass('note-show');
-          }
-        });
+      $(this).data('inited', '1');
+      var noteButton = $(this).closest('.grid-body').find('.note-button');
+      var noteOverlay = $(this).closest('.grid-body').find('.note-overlay');
+      noteButton.click(function onClick() {
+        adjustNoteOverlaySize(noteOverlay);
+        if (!noteOverlay.hasClass('note-show')) {
+          noteButton.addClass('note-show');
+          noteOverlay.addClass('note-show');
+        } else {
+          noteButton.removeClass('note-show');
+          noteOverlay.removeClass('note-show');
+        }
       });
+    });
 
     // Prompt before leaving page if Ajax load is in progress
     window.onbeforeunload = function onBeforeUnloadWindow(/*e*/) {
