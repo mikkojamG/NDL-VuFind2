@@ -19,14 +19,5 @@
   },
   "devDependencies": {
     "grunt-contrib-watch": "^1.1.0"
-  },
-  "scripts": {
-    "build:less": "grunt less",
-    "build:scss": "grunt scss",
-    "build:lessdev": "grunt lessdev",
-    "watch:less": "grunt watch:less",
-    "watch:scss": "grunt watch:scss",
-    "watch:lessdev": "grunt watch:lessdev",
-    "lessToSass": "grunt lessToSass"
   }
 }
