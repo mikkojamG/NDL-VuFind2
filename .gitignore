@@ -33,7 +33,6 @@ Thumbs.db
 .ExternalToolBuilders
 .idea
 .vscode
-yarn.lock
 
 # Local VuFind files
 local/cache/covers/large/*
