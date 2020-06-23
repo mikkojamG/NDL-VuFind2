@@ -245,8 +245,7 @@
   display: inherit;
 }
 .list-description {
-  ul,
-  ol {
+  ul, ol {
     margin-left: 25px;
   }
   ul li {
@@ -260,20 +259,15 @@
   margin-bottom: -18px;
 }
 
-.list-title,
-.list-description:not(.edit),
-.resource-note:not(.edit),
-.add-new-list {
+.list-title, .list-description:not(.edit), .resource-note:not(.edit), .add-new-list {
   border: 1px solid transparent;
   display: inline-block;
   padding: 5px;
-  width: ~'-webkit-calc(100% - 30px)';
-  width: ~'-moz-calc(100% - 30px)';
-  width: ~'calc(100% - 30px)';
+  width: ~"-webkit-calc(100% - 30px)";
+  width: ~"-moz-calc(100% - 30px)";
+  width: ~"calc(100% - 30px)";
   width: 100%;
-  &:hover,
-  &:active,
-  &:focus {
+  &:hover, &:active, &:focus {
     border: 1px solid @gray-lighter;
     i {
       transition: all 0.2s linear;
@@ -289,8 +283,7 @@
     display: inline-block;
     word-wrap: break-word;
     padding-right: 25px;
-    input,
-    textarea {
+    input, textarea {
       &:focus,
       &:active {
         border: none;
@@ -303,8 +296,7 @@
     display: none;
   }
 }
-.list-description.markdown,
-.resource-note.markdown {
+.list-description.markdown, .resource-note.markdown {
   padding: 0;
   .fa {
     margin-top: 0.25rem;
@@ -313,9 +305,7 @@
 }
 
 .list-title.disable {
-  &:hover,
-  &:active,
-  &:focus {
+  &:hover, &:active, &:focus {
     border: 1px solid transparent;
     cursor: initial;
   }
@@ -346,8 +336,7 @@ span.caret {
       margin-top: 2px;
       margin-bottom: 0;
     }
-    .fa.fa-arrow-down,
-    .fa.fa-arrow-up {
+    .fa.fa-arrow-down, .fa.fa-arrow-up {
       position: absolute;
       right: 26px;
       margin-top: 10px;
@@ -364,8 +353,7 @@ span.caret {
     margin-left: 5px;
     margin-right: 10px;
     li {
-      .fa.fa-arrow-down,
-      .fa.fa-arrow-up {
+      .fa.fa-arrow-down, .fa.fa-arrow-up {
         right: 32px;
       }
     }
@@ -453,8 +441,7 @@ span.caret {
             margin-bottom: -6px;
           }
         }
-        div,
-        a {
+        div, a {
           width: 100%;
         }
       }
@@ -472,8 +459,7 @@ span.caret {
         text-align: right;
         float: left;
         width: 20%;
-        div,
-        a {
+        div, a {
           width: 100%;
         }
       }
