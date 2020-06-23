@@ -1,12 +1,11 @@
 /*global VuFind, finna, SimpleMDE */
 finna.myList = (function finnaMyList() {
   var editor = null;
-  var editableSettings = { minWidth: 200, addToHeight: 100 };
+  var editableSettings = {minWidth: 200, addToHeight: 100};
   var save = false;
   var listUrl = null;
   var refreshLists = null;
-  var truncateDone =
-    '<div class="truncate-field" data-rows="1" data-row-height="5" markdown="1"';
+  var truncateDone = '<div class="truncate-field" data-rows="1" data-row-height="5" markdown="1"';
   var truncateTag = '<truncate>';
   var truncateCloseTag = '</truncate>';
   function getEditorCursorPos(mdeditor) {
@@ -30,8 +29,7 @@ finna.myList = (function finnaMyList() {
     if (value.indexOf(truncateTag) !== -1) {
       return;
     } else {
-      var truncateEl =
-        '\n' + truncateTag + '<summary></summary>\n\n' + truncateCloseTag;
+      var truncateEl = '\n' + truncateTag + '<summary></summary>\n\n' + truncateCloseTag;
       insertElement(truncateEl, mdeditor);
       var doc = editor.codemirror.getDoc();
       var cursorPos = getEditorCursorPos(editor);
@@ -44,14 +42,7 @@ finna.myList = (function finnaMyList() {
 
   function insertDetails(mdeditor) {
     var summaryPlaceholder = VuFind.translate('details_summary_placeholder');
-    var detailsElement =
-      '\n<details class="favorite-list-details" markdown="1">' +
-      '<summary markdown="1">' +
-      summaryPlaceholder +
-      '</summary>\n' +
-      VuFind.translate('details_text_placeholder') +
-      '\n' +
-      '</details>';
+    var detailsElement = '\n<details class="favorite-list-details" markdown="1">' + '<summary markdown="1">' + summaryPlaceholder + '</summary>\n' + VuFind.translate('details_text_placeholder') + '\n' + '</details>';
 
     insertElement(detailsElement, mdeditor);
     var doc = editor.codemirror.getDoc();
@@ -117,7 +108,7 @@ finna.myList = (function finnaMyList() {
     $msg.addClass('alert alert-danger');
     $msg.toggleClass('hidden', !mode);
     if (mode) {
-      $('html, body').animate({ scrollTop: 0 }, 'fast');
+      $('html, body').animate({scrollTop: 0}, 'fast');
     }
   }
 
@@ -190,9 +181,7 @@ finna.myList = (function finnaMyList() {
     };
 
     if (type !== 'add-list') {
-      var description = $('.list-description .editable [data-markdown]').data(
-        'markdown'
-      );
+      var description = $('.list-description .editable [data-markdown]').data('markdown');
       description = handleTruncateField(description);
       if (description === VuFind.translate('add_list_description')) {
         listParams.desc = '';
@@ -227,7 +216,7 @@ finna.myList = (function finnaMyList() {
       type: 'POST',
       dataType: 'json',
       url: VuFind.path + '/AJAX/JSON?method=editList',
-      data: { params: listParams }
+      data: {'params': listParams}
     })
       .done(function onEditListDone(data /*, status, jqXHR*/) {
         if (spinner) {
@@ -249,15 +238,13 @@ finna.myList = (function finnaMyList() {
     toggleErrorMessage(false);
 
     var ids = [];
-    $('input.checkbox-select-item[name="ids[]"]:checked').each(
-      function processRecordId() {
-        var recId = $(this).val();
-        var pos = recId.indexOf('|');
-        var source = recId.substring(0, pos);
-        var id = recId.substring(pos + 1);
-        ids.push([source, id]);
-      }
-    );
+    $('input.checkbox-select-item[name="ids[]"]:checked').each(function processRecordId() {
+      var recId = $(this).val();
+      var pos = recId.indexOf('|');
+      var source = recId.substring(0, pos);
+      var id = recId.substring(pos + 1);
+      ids.push([source, id]);
+    });
     if (!ids.length) {
       return;
     }
@@ -269,7 +256,7 @@ finna.myList = (function finnaMyList() {
       type: 'POST',
       dataType: 'json',
       url: VuFind.path + '/AJAX/JSON?method=addToList',
-      data: { params: { listId: listId, source: 'Solr', ids: ids } }
+      data: {params: {'listId': listId, 'source': 'Solr', 'ids': ids}}
     })
       .done(function onAddToListDone(/*data*/) {
         // Don't reload to avoid trouble with POST requests
@@ -303,16 +290,12 @@ finna.myList = (function finnaMyList() {
               target.text(currentTitle);
               return false;
             } else {
-              updateList({ title: e.value }, refreshLists, 'title');
+              updateList({title: e.value}, refreshLists, 'title');
             }
           }
         }
       };
-      target.editable(
-        { action: 'click', triggers: [target, $('.list-title i')] },
-        titleCallback,
-        editableSettings
-      );
+      target.editable({action: 'click', triggers: [target, $('.list-title i')]}, titleCallback, editableSettings);
     } else {
       target.replaceWith(target.clone());
     }
@@ -338,9 +321,7 @@ finna.myList = (function finnaMyList() {
     var newTitle = title.length > 20 ? title.substring(0, 20) + '...' : title;
 
     // update add-to-list select
-    $('#add-to-list').append(
-      $('<option></option>').attr('value', data.id).text(newTitle)
-    );
+    $('#add-to-list').append($('<option></option>').attr('value', data.id).text(newTitle));
 
     refreshLists();
   }
@@ -367,7 +348,7 @@ finna.myList = (function finnaMyList() {
       type: 'POST',
       dataType: 'json',
       url: VuFind.path + '/AJAX/JSON?method=editListResource',
-      data: { params: params }
+      data: {'params': params}
     })
       .done(function onEditListResourceDone(/*data*/) {
         if (spinner) {
@@ -457,13 +438,8 @@ finna.myList = (function finnaMyList() {
 
         html = handleTruncateField(html);
         $('.markdown-preview').remove();
-        var preview = $('<div/>')
-          .addClass('markdown-preview')
-          .html($('<div/>').addClass('data').html(html));
-        $('<div/>')
-          .addClass('preview')
-          .text(VuFind.translate('preview').toUpperCase())
-          .prependTo(preview);
+        var preview = $('<div/>').addClass('markdown-preview').html($('<div/>').addClass('data').html(html));
+        $('<div/>').addClass('preview').text(VuFind.translate('preview').toUpperCase()).prependTo(preview);
         preview.appendTo(element);
         finna.layout.initTruncate(preview);
         initDetailsElements();
@@ -538,21 +514,15 @@ finna.myList = (function finnaMyList() {
     $('.mylist-controls-bar .checkbox-select-all')
       .unbind('change')
       .change(function onChangeSelectAll() {
-        $('.myresearch-row .checkbox-select-item').prop(
-          'checked',
-          $(this).is(':checked')
-        );
+        $('.myresearch-row .checkbox-select-item').prop('checked', $(this).is(':checked'));
       });
 
     if (!isDefaultList) {
       toggleTitleEditable(true);
 
-      initEditableMarkdownField(
-        $('.list-description'),
-        function onDoneEditDescription(/*markdown*/) {
-          updateList({}, listDescriptionChanged, 'desc');
-        }
-      );
+      initEditableMarkdownField($('.list-description'), function onDoneEditDescription(/*markdown*/) {
+        updateList({}, listDescriptionChanged, 'desc');
+      });
 
       // list visibility
       $(".list-visibility input[type='radio']")
@@ -617,11 +587,7 @@ finna.myList = (function finnaMyList() {
       if (newListName !== '') {
         newListInput.off('keyup');
         $(this).off('click');
-        updateList(
-          { id: 'NEW', title: newListName, desc: null, public: 0 },
-          newListAdded,
-          'add-list'
-        );
+        updateList({id: 'NEW', title: newListName, desc: null, public: 0}, newListAdded, 'add-list');
       }
     });
 
@@ -634,17 +600,12 @@ finna.myList = (function finnaMyList() {
 
     $('.myresearch-row').each(function initNoteEditor(ind, obj) {
       var editField = $(obj).find('.myresearch-notes .resource-note');
-      initEditableMarkdownField(editField, function onMarkdownEditDone(
-        markdown
-      ) {
+      initEditableMarkdownField(editField, function onMarkdownEditDone(markdown) {
         var row = editField.closest('.myresearch-row');
         var id = row.find('.hiddenId').val();
         var listId = getActiveListId();
 
-        updateListResource(
-          { id: id, listId: listId, notes: markdown },
-          editField.find('> div')
-        );
+        updateListResource({id: id, listId: listId, notes: markdown}, editField.find('> div'));
       });
     });
 
@@ -662,10 +623,7 @@ finna.myList = (function finnaMyList() {
       var container = noteOverlay.closest('.grid-body');
       var coverContainer = container.find('.grid-image');
       var imageWidth = coverContainer.width();
-      var imageHeight = Math.min(
-        container.find('.grid-title').position().top,
-        container.find('.record-image-container').height()
-      );
+      var imageHeight = Math.min(container.find('.grid-title').position().top, container.find('.record-image-container').height());
       noteOverlay.height(imageHeight);
       noteOverlay.width(imageWidth);
     }
@@ -706,7 +664,7 @@ finna.myList = (function finnaMyList() {
       type: 'POST',
       dataType: 'json',
       url: VuFind.path + '/AJAX/JSON?method=getMyLists',
-      data: { active: getActiveListId() }
+      data: {'active': getActiveListId()}
     })
       .done(function onGetMyListsDone(data) {
         toggleSpinner(spinner, false);
@@ -722,13 +680,11 @@ finna.myList = (function finnaMyList() {
   function initFavoriteOrderingFunctionality(url) {
     listUrl = url;
 
-    $('#sortable').sortable({ cursor: 'move', opacity: 0.7 });
+    $('#sortable').sortable({cursor: 'move', opacity: 0.7});
 
     $('#sort_form').submit(function onSubmitSortForm(/*event*/) {
       var listOfItems = $('#sortable').sortable('toArray');
-      $('#sort_form input[name="orderedList"]').val(
-        JSON.stringify(listOfItems)
-      );
+      $('#sort_form input[name="orderedList"]').val(JSON.stringify(listOfItems));
       return true;
     });
   }
