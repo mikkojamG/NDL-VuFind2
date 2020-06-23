@@ -50,13 +50,6 @@ module.exports = function(grunt) {
     rename: function (dest, src) {
       return src.replace('/less/', '/css/').replace('.less', '.css');
     }
-  },
-  {
-    expand: true,
-    src: 'themes/finna2/less/finna.less',
-    rename: function (dest, src) {
-      return src.replace('/less/', '/css/').replace('.less', '.css');
-    }
   }];
 
   grunt.initConfig({
