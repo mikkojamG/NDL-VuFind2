@@ -1,7 +1,7 @@
 /*global VuFind, finna, SimpleMDE */
 finna.myList = (function finnaMyList() {
   var editor = null;
-  var editableSettings = {minWidth: 200, addToHeight: 100};
+  var editableSettings = {'minWidth': 200, 'addToHeight': 100};
   var save = false;
   var listUrl = null;
   var refreshLists = null;
@@ -33,10 +33,7 @@ finna.myList = (function finnaMyList() {
       insertElement(truncateEl, mdeditor);
       var doc = editor.codemirror.getDoc();
       var cursorPos = getEditorCursorPos(editor);
-      doc.setCursor({
-        line: cursorPos.line - 2,
-        ch: '<truncate><summary>'.length
-      });
+      doc.setCursor({line: cursorPos.line - 2, ch: '<truncate><summary>'.length});
     }
   }
 
@@ -48,10 +45,7 @@ finna.myList = (function finnaMyList() {
     var doc = editor.codemirror.getDoc();
     var cursorPos = getEditorCursorPos(editor);
     var summaryAndPlaceholder = '<summary>' + summaryPlaceholder;
-    doc.setCursor({
-      line: cursorPos.line - 1,
-      ch: summaryAndPlaceholder.length
-    });
+    doc.setCursor({line: cursorPos.line - 1, ch: summaryAndPlaceholder.length});
   }
 
   var mdeToolbar = [
@@ -131,7 +125,6 @@ finna.myList = (function finnaMyList() {
     var summaryText = '';
     var truncateEl = '';
     var tempDom = '';
-
     if (trunc && description.indexOf(truncateTag) !== -1) {
       // Fixes preview bug
       desc = desc.replace('<p><truncate>', '<truncate>');
@@ -175,9 +168,9 @@ finna.myList = (function finnaMyList() {
     var spinner = null;
 
     var listParams = {
-      id: getActiveListId(),
-      title: $('.list-title span').text(),
-      public: $(".list-visibility input[type='radio']:checked").val()
+      'id': getActiveListId(),
+      'title': $('.list-title span').text(),
+      'public': $(".list-visibility input[type='radio']:checked").val()
     };
 
     if (type !== 'add-list') {
@@ -341,7 +334,6 @@ finna.myList = (function finnaMyList() {
 
     var parent = input.closest('.myresearch-notes');
     var spinner = parent.find('.fa-pen');
-
     toggleSpinner(spinner, true);
 
     $.ajax({
@@ -356,17 +348,12 @@ finna.myList = (function finnaMyList() {
         }
 
         var hasNotes = params.notes !== '';
-
         parent.find('.note-info').toggleClass('hide', !hasNotes);
-
         input.data('empty', hasNotes === '' ? '1' : '0');
-
         if (!hasNotes) {
           input.find('[data-markdown]').text(VuFind.translate('add_note'));
         }
-
         toggleTitleEditable(true);
-
         save = false;
       })
       .fail(function onEditListResourceFail() {
@@ -427,7 +414,6 @@ finna.myList = (function finnaMyList() {
         };
 
         editor = new SimpleMDE(editorSettings);
-
         currentVal = editor.value();
 
         if (currentVal.indexOf(truncateTag) !== -1) {
@@ -435,7 +421,6 @@ finna.myList = (function finnaMyList() {
         }
         // Preview
         var html = SimpleMDE.prototype.markdown(editor.value());
-
         html = handleTruncateField(html);
         $('.markdown-preview').remove();
         var preview = $('<div/>').addClass('markdown-preview').html($('<div/>').addClass('data').html(html));
@@ -453,7 +438,6 @@ finna.myList = (function finnaMyList() {
           } else {
             $('.fa-pagebreak').removeClass('pagebreak-toggled');
           }
-
           result = handleTruncateField(result);
           preview.find('.data').html(result);
           finna.layout.initTruncate(preview);
@@ -463,7 +447,6 @@ finna.myList = (function finnaMyList() {
         // Close editor and save when user clicks outside the editor
         $(document).one('click', function onClickDocument() {
           var markdown = editor.value();
-
           var resultHtml = SimpleMDE.prototype.markdown(markdown);
 
           editor.toTextArea();
@@ -473,13 +456,9 @@ finna.myList = (function finnaMyList() {
           container.show();
           container.data('markdown', markdown);
           container.data('empty', markdown.length === 0 ? '1' : '0');
-
           resultHtml = handleTruncateField(resultHtml);
-
           container.html(resultHtml);
-
           finna.layout.initTruncate(container);
-
           preview.remove();
 
           callback(markdown);
@@ -546,8 +525,8 @@ finna.myList = (function finnaMyList() {
             var left = $(window).width() / 2 - prompt.width() / 2;
 
             prompt.css({
-              left: left,
-              top: pos.top + 30
+              'left': left,
+              'top': pos.top + 30
             });
           }
 
@@ -587,7 +566,7 @@ finna.myList = (function finnaMyList() {
       if (newListName !== '') {
         newListInput.off('keyup');
         $(this).off('click');
-        updateList({id: 'NEW', title: newListName, desc: null, public: 0}, newListAdded, 'add-list');
+        updateList({'id': 'NEW', 'title': newListName, 'desc': null, 'public': 0}, newListAdded, 'add-list');
       }
     });
 
@@ -605,7 +584,7 @@ finna.myList = (function finnaMyList() {
         var id = row.find('.hiddenId').val();
         var listId = getActiveListId();
 
-        updateListResource({id: id, listId: listId, notes: markdown}, editField.find('> div'));
+        updateListResource({'id': id, 'listId': listId, 'notes': markdown}, editField.find('> div'));
       });
     });
 
