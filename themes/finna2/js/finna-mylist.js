@@ -1,5 +1,6 @@
 /*global VuFind, finna, SimpleMDE */
 finna.myList = (function finnaMyList() {
+
   var editor = null;
   var editableSettings = {'minWidth': 200, 'addToHeight': 100};
   var save = false;
@@ -49,17 +50,7 @@ finna.myList = (function finnaMyList() {
   }
 
   var mdeToolbar = [
-    'bold',
-    'italic',
-    'heading',
-    '|',
-    'quote',
-    'unordered-list',
-    'ordered-list',
-    '|',
-    'link',
-    'image',
-    '|',
+    'bold', 'italic', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'link', 'image', '|',
     {
       name: 'Details',
       action: function detailsInsert(mdeditor) {
@@ -364,10 +355,7 @@ finna.myList = (function finnaMyList() {
   }
 
   function initEditableMarkdownField(element, callback) {
-    element
-      .find('.editable')
-      .unbind('click')
-      .click(function onClickEditable(e) {
+    element.find('.editable').unbind('click').click(function onClickEditable(e) {
         if (save) {
           // Do not open the editor when save is in progress.
           return;
@@ -462,10 +450,7 @@ finna.myList = (function finnaMyList() {
         });
         $('.CodeMirror-code').focus();
         // Prevent clicks within the editor area from bubbling up and closing the editor.
-        element
-          .closest('.markdown')
-          .unbind('click')
-          .click(function onClickEditor() {
+        element.closest('.markdown').unbind('click').click(function onClickEditor() {
             return false;
           });
       });
@@ -487,9 +472,7 @@ finna.myList = (function finnaMyList() {
     finna.layout.initMobileNarrowSearch();
 
     // Checkbox select all
-    $('.mylist-controls-bar .checkbox-select-all')
-      .unbind('change')
-      .change(function onChangeSelectAll() {
+    $('.mylist-controls-bar .checkbox-select-all').unbind('change').change(function onChangeSelectAll() {
         $('.myresearch-row .checkbox-select-item').prop('checked', $(this).is(':checked'));
       });
 
@@ -501,18 +484,13 @@ finna.myList = (function finnaMyList() {
       });
 
       // list visibility
-      $(".list-visibility input[type='radio']")
-        .unbind('change')
-        .change(function onChangeVisibility() {
+      $(".list-visibility input[type='radio']").unbind('change').change(function onChangeVisibility() {
           updateList({}, refreshLists, 'visibility');
         });
 
       // delete list
       var active = $('.mylist-bar').find('a.active');
-      active
-        .find('.remove')
-        .unbind('click')
-        .click(function onClickRemove(e) {
+      active.find('.remove').unbind('click').click(function onClickRemove(e) {
           var target = $(this);
           var form = $('.delete-list');
           var prompt = form.find('.dropdown-menu');
@@ -531,17 +509,11 @@ finna.myList = (function finnaMyList() {
             $(window).resize(repositionPrompt);
           }
 
-          prompt
-            .find('.confirm')
-            .unbind('click')
-            .click(function onClickConfirm(ev) {
+          prompt.find('.confirm').unbind('click').click(function onClickConfirm(ev) {
               form.submit();
               ev.preventDefault();
             });
-          prompt
-            .find('.cancel')
-            .unbind('click')
-            .click(function onClickCancel(ev) {
+          prompt.find('.cancel').unbind('click').click(function onClickCancel(ev) {
               $(window).off('resize', repositionPrompt);
               prompt.hide();
               $('.remove-favorite-list').focus();
@@ -586,9 +558,7 @@ finna.myList = (function finnaMyList() {
     });
 
     // add resource to list
-    $('.mylist-functions #add-to-list')
-      .unbind('change')
-      .change(function onChangeAddToList(/*e*/) {
+    $('.mylist-functions #add-to-list').unbind('change').change(function onChangeAddToList(/*e*/) {
         var val = $(this).val();
         if (val !== '') {
           addResourcesToList(val);
@@ -605,9 +575,7 @@ finna.myList = (function finnaMyList() {
     }
 
     // hide/show notes on images
-    $('.notes')
-      .not(':data(inited)')
-      .each(function initNotes() {
+    $('.notes').not(':data(inited)').each(function initNotes() {
         $(this).data('inited', '1');
         var noteButton = $(this).closest('.grid-body').find('.note-button');
         var noteOverlay = $(this).closest('.grid-body').find('.note-overlay');
