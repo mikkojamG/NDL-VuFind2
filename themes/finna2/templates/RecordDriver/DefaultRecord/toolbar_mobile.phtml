@@ -27,8 +27,8 @@
           <?php if ($this->userlist()->getMode() !== 'disabled'): ?>
           <li><a class="save-record-mobile" data-lightbox href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>" title="<?=$this->transEsc('Add to favorites')?>" rel="nofollow"><i class="fa fa-plus"></i> <span class="sr-only"><?=$this->transEsc('Add to favorites')?></span></a></li>
           <?php endif; ?>
-
-          <li class="dropdown dropup">
+          
+          <li class="dropdown dropup nav-pills mobile-sharing">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#" rel="nofollow"><i class="fa fa-bookmark"></i><span class="hidden-xs"> <?=$this->transEsc('Share') ?></span></a>
             <ul class="dropdown-menu" role="menu">
               <?php if (!empty($shareUrl)): ?>
