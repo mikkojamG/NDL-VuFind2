@@ -234,7 +234,8 @@ return [
         'vendor/priority-nav.min.js',
         'vendor/leaflet.min.js',
         'vendor/leaflet.draw.min.js',
-        'finna-multiselect.js'
+        'finna-multiselect.js',
+        'finna-keywords.js'
     ],
     'less' => [
         'active' => false

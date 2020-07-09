@@ -1,0 +1,36 @@
+<div class="keywords">
+  <div class="keywords-spinner js-spinner">
+    <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+  </div>
+  <div class="keywords-wrapper js-keywords-wrapper">
+    <?php if ($editable) : ?>
+      <button class="keywords-toggle__button btn js-toggle-keywords">
+        <span class="keywords-toggle__label"><?= $addKeyword ?></span>
+        <i class="fa fa-tag keywords-toggle__icon" aria-hidden="true"></i>
+      </button>
+      <div class="keywords-controls js-controls">
+        <?php $this->render(
+          '_patterns/00-atoms/02-alerts/in-testing-alert.phtml',
+          ['alert' => $alert]
+        ); ?>
+        <?php $this->render('_patterns/01-molecules/00-forms/add-keyword.phtml', ['form'
+        => $form]); ?>
+      </div>
+    <?php endif; ?>
+    <div class="keywords-current js-current">
+      <?php if ($editable) : ?>
+        <p class="keywords-current__text">
+          <?= $currentKeywords ?>
+          (<span class="js-keywords-counter">0</span>):
+        </p>
+      <?php endif; ?>
+      <div class="keywords-current__list js-keywords-list"></div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    finna.keywords.init();
+  });
+</script>
