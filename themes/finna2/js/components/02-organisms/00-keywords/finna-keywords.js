@@ -1,1 +1,0 @@
-/Users/mikko.jamia/finna/ui-component-library-proto/dist/js/02-organisms/00-keywords/finna-keywords.js
