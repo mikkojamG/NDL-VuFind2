@@ -57,3 +57,8 @@ themes/custom/css/finna.css
 *.diff
 vufind.bat
 public/swagger-ui
+
+# Component library
+themes/finna2/js/components/
+themes/finna2/less/components/
+themes/finna2/templates/components/
