@@ -64,7 +64,7 @@
     </div>
   <?php endif; ?>
 
-  <?= $this->partial('_patterns/02-organisms/00-keywords/keywords.phtml', ['editable' => true, 'addKeyword' => 'Add keywords', 'alert' => 'This feature is still in testing', 'form' => ['label' => 'Add keyword', 'submit' => 'Enter', 'error' => 'Please provide a keyword'], 'currentKeywords' => 'Current keywords']) ?>
+  <?= $this->partial('components/02-organisms/00-keywords/keywords.phtml', ['editable' => true, 'addKeyword' => 'Add keywords', 'alert' => 'This feature is still in testing', 'form' => ['label' => 'Add keyword', 'submit' => 'Enter', 'error' => 'Please provide a keyword'], 'currentKeywords' => 'Current keywords']) ?>
 
   <div class="mylist-header useraccount-header">
     <?php if ($recordTotal > 0): ?>
