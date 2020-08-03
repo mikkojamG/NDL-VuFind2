@@ -430,7 +430,7 @@ finna.myList = (function finnaMyList() {
       });
 
       // Close editor and save when user clicks outside the editor
-      $(document).one('click', function onClickDocument(event) {
+      $(document).one('click', function onClickDocument() {
         var markdown = editor.value();
         var resultHtml = SimpleMDE.prototype.markdown(markdown);
 
@@ -450,7 +450,6 @@ finna.myList = (function finnaMyList() {
       });
       $('.CodeMirror-code').focus();
       // Prevent clicks within the editor area from bubbling up and closing the editor.
-
       element.closest('.markdown').unbind('click').click(function onClickEditor() {
         return false;
       });
