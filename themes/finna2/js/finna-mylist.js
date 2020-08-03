@@ -66,6 +66,14 @@ finna.myList = (function finnaMyList() {
       },
       className: 'fa fa-pagebreak',
       title: 'Truncate'
+    },
+    {
+      name: 'close',
+      action: function closeToolbar() {
+        $(document).trigger('click');
+      },
+      className: 'fa fa-times editor-toolbar-close',
+      title: 'Close'
     }
   ];
 
