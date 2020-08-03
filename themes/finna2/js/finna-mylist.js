@@ -40,7 +40,10 @@ finna.myList = (function finnaMyList() {
 
   function insertDetails(mdeditor) {
     var summaryPlaceholder = VuFind.translate('details_summary_placeholder');
-    var detailsElement = '\n<details class="favorite-list-details" markdown="1">' + '<summary markdown="1">' + summaryPlaceholder + '</summary>\n' + VuFind.translate('details_text_placeholder') + '\n' + '</details>';
+    var detailsElement = '\n<details class="favorite-list-details" markdown="1">' +
+     '<summary markdown="1">' + summaryPlaceholder + '</summary>\n' +
+     VuFind.translate('details_text_placeholder') + '\n' +
+     '</details>';
 
     insertElement(detailsElement, mdeditor);
     var doc = editor.codemirror.getDoc();
@@ -50,7 +53,12 @@ finna.myList = (function finnaMyList() {
   }
 
   var mdeToolbar = [
-    'bold', 'italic', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'link', 'image', '|',
+    'bold', 'italic',
+    'heading', '|',
+    'quote', 'unordered-list',
+    'ordered-list', '|',
+    'link', 'image',
+    '|',
     {
       name: 'Details',
       action: function detailsInsert(mdeditor) {
@@ -313,7 +321,10 @@ finna.myList = (function finnaMyList() {
     var newTitle = title.length > 20 ? title.substring(0, 20) + '...' : title;
 
     // update add-to-list select
-    $('#add-to-list').append($('<option></option>').attr('value', data.id).text(newTitle));
+    $('#add-to-list')
+      .append($('<option></option>')
+        .attr('value', data.id)
+        .text(newTitle));
 
     refreshLists();
   }
@@ -416,7 +427,8 @@ finna.myList = (function finnaMyList() {
       var html = SimpleMDE.prototype.markdown(editor.value());
       html = handleTruncateField(html);
       $('.markdown-preview').remove();
-      var preview = $('<div/>').addClass('markdown-preview').html($('<div/>').addClass('data').html(html));
+      var preview = $('<div/>').addClass('markdown-preview')
+        .html($('<div/>').addClass('data').html(html));
       $('<div/>').addClass('preview').text(VuFind.translate('preview').toUpperCase()).prependTo(preview);
       preview.appendTo(element);
       finna.layout.initTruncate(preview);
@@ -561,7 +573,10 @@ finna.myList = (function finnaMyList() {
         var id = row.find('.hiddenId').val();
         var listId = getActiveListId();
 
-        updateListResource({'id': id, 'listId': listId, 'notes': markdown}, editField.find('> div'));
+        updateListResource(
+          {'id': id, 'listId': listId, 'notes': markdown},
+          editField.find('> div')
+        );
       });
     });
 
