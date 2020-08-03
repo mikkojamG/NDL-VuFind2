@@ -304,7 +304,6 @@ finna.myList = (function finnaMyList() {
 
   function listDescriptionChanged() {
     var description = $('.list-description .editable [data-markdown]');
-
     if (description.html() === '') {
       description.data('empty', '1');
       description.html(VuFind.translate('add_list_description'));
