@@ -257,14 +257,16 @@
 }
 
 .editable .editor-toolbar {
+  position: relative;
+  padding-right: 3.2rem;
+
   .editor-toolbar-close {
+    position: absolute;
+    right: 0;
+    top: 0.8rem;
     border: none;
     color: @gray !important;
     font-size: 1.6rem;
-
-    @media (min-width: @screen-xs-max) {
-      float: right;
-    }
 
     &:hover,
     &:active {
