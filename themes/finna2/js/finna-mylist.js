@@ -373,7 +373,7 @@ finna.myList = (function finnaMyList() {
   }
 
   function initEditableMarkdownField(element, callback) {
-    element.find('[data-markdown], .list-description-edit').unbind('click').click(function onClickEditable(e) {
+    element.find('[data-markdown], .js-edit').unbind('click').click(function onClickEditable(e) {
       if (save) {
         // Do not open the editor when save is in progress.
         return;
