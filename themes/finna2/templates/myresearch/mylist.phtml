@@ -64,7 +64,7 @@
     </div>
   <?php endif; ?>
 
-  <?= $this->partial('components/02-organisms/00-keywords/keywords.phtml', ['editable' => true, 'addKeyword' => 'Add keywords', 'alert' => 'This feature is still in testing', 'form' => ['label' => 'Add keyword', 'submit' => 'Enter', 'error' => 'Please provide a keyword'], 'currentKeywords' => 'Current keywords']) ?>
+  <?= $this->partial('components/01-molecules/02-messaging/03-success-alert.phtml', ['alert' => 'Komponentit toimivat!']); ?>
 
   <div class="mylist-header useraccount-header">
     <?php if ($recordTotal > 0): ?>
