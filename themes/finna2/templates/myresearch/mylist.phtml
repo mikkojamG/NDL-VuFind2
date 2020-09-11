@@ -77,6 +77,8 @@
               </form>
             </div>
           </div>
+
+          <?= $this->partial('components/02-organisms/00-keywords/keywords.phtml', ['editable' => true, 'addKeyword' => 'Add keyword', 'alert' => 'This feature is still in testing', 'toggleButtonLabel' => 'Toggle keywords word', 'form' => ['label' => 'Type a keyword and click "Enter"', 'error' => 'Please provide a keyword', 'submit' => 'Submit'], 'submitError' => 'Something went wrong! Please try again later.', 'currentKeywords' => 'Current keywords', 'tags' => $list->getListTags()]); ?>
         <?php endif ?>
       <?php else: ?>
         <h2 class="list-title no-edit"><span><?=$this->transEsc("All Favourites")?></span></h2>
@@ -88,8 +90,6 @@
       <?=$this->render($template)?>
     </div>
   <?php endif; ?>
-
-  <?= $this->partial('components/02-organisms/00-keywords/keywords.phtml', ['editable' => true, 'addKeyword' => 'Add keyword', 'alert' => 'This feature is still in testing', 'toggleButtonLabel' => 'Toggle keywords word', 'form' => ['label' => 'Type a keyword and click "Enter"', 'error' => 'Please provide a keyword', 'submit' => 'Submit'], 'submitError' => 'Something went wrong! Please try again later.', 'currentKeywords' => 'Current keywords', 'tags' => []]); ?>
 
   <div class="mylist-header useraccount-header">
     <?php if ($recordTotal > 0): ?>
