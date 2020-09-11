@@ -95,6 +95,7 @@
 
   // Load Javascript dependencies into header:
   $this->headScript()->appendFile("check_save_statuses.js");
+  $this->headScript()->appendFile("check_item_statuses.js");
   $this->headScript()->appendFile("finna-search-tabs-recommendations.js");
   $this->headScript()->appendFile("finna-item-status.js");
 
@@ -125,7 +126,7 @@
           <span class="filter-text">
             <?=$desc?>
           </span>
-          <?php if ($removeLink): ?><a aria-label="<?=$ariaLabel?>" href="<?=$this->escapeHtmlAttr($removeLink)?>"><i class="fa fa-window-close" aria-hidden="true"></i></a><?php endif; ?>
+          <?php if ($removeLink): ?><a aria-label="<?=$ariaLabel?>" href="<?=$removeLink?>"><i class="fa fa-window-close" aria-hidden="true"></i></a><?php endif; ?>
         </span>
       <?php endforeach; ?>
     <?php endif; ?>

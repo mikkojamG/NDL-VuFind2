@@ -20,7 +20,7 @@
 
   // Set up breadcrumbs:
   $this->layout()->breadcrumbs = '<li>' . $this->searchMemory()->getLastSearchLink($this->transEsc('Search'), '', '</li> ') .
-    '<li class="active">' . $this->recordLink()->getBreadcrumb($this->driver) . '</li> ';
+    '<li class="active" aria-current="page">' . $this->recordLink()->getBreadcrumb($this->driver) . '</li> ';
 
   $this->layout()->title = $this->driver->getShortTitle();
 
@@ -70,7 +70,7 @@
       $this->layout()->userLang, $params
   );
   $noImage = empty($images[0]['urls']['medium']) && empty($images[0]['urls']['large']);
-  $largeImageLayout = !$noImage && in_array($this->driver->tryMethod('getRecordType'), ['lido', 'forward', 'ead', 'forwardAuthority']);
+  $largeImageLayout = !$noImage && in_array($this->driver->tryMethod('getRecordFormat'), ['lido', 'forward', 'ead', 'forwardAuthority']);
 ?>
 </div>
 <div class="container">

@@ -56,6 +56,17 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
     ];
 
     /**
+     * Item status rankings. The lower the value, the more important the status.
+     *
+     * @var array
+     */
+    protected $statusRankings = [
+        'Lost--Library Applied' => 1,
+        'Charged' => 2,
+        'On Hold' => 3,
+    ];
+
+    /**
      * Whether to use location in addition to library when grouping holdings
      *
      * @param bool
@@ -88,6 +99,9 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
     public function init()
     {
         parent::init();
+
+        $this->patronStatusMappings['Patron::DebarredWithReason']
+            = 'patron_status_restricted_with_reason';
 
         $this->groupHoldingsByLocation
             = isset($this->config['Holdings']['group_by_location'])
@@ -236,6 +250,7 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
                     'query_blocks' => 1,
                     'query_relationships' => 1,
                     'query_messaging_preferences' => 1,
+                    'query_messages' => 1,
                 ]
             ]
         );
@@ -310,6 +325,15 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
             $messagingSettings[$type] = $settings;
         }
 
+        $messages = [];
+        foreach ($result['messages'] ?? [] as $message) {
+            $messages[] = [
+                'date' => $this->convertDate($message['date']),
+                'library' => $this->getLibraryName($message['library_id']),
+                'message' => $message['message']
+            ];
+        }
+
         $phoneField = isset($this->config['Profile']['phoneNumberField'])
             ? $this->config['Profile']['phoneNumberField']
             : 'mobile';
@@ -332,12 +356,14 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
             'country' => $result['country'],
             'category' => $result['category_id'] ?? '',
             'expiration_date' => $expirationDate,
+            'expiration_soon' => !empty($result['expiry_date_near']),
             'hold_identifier' => $result['other_name'],
             'guarantors' => $guarantors,
             'guarantees' => $guarantees,
             'loan_history' => $result['privacy'],
             'messagingServices' => $messagingSettings,
             'notes' => $result['opac_notes'],
+            'messages' => $messages,
             'full_data' => $result
         ];
     }
@@ -421,7 +447,7 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
     {
         $fields = !empty($this->config['updateSmsNumber']['fields'])
             ? explode(',', $this->config['updateSmsNumber']['fields'])
-            : ['smsalertnumber'];
+            : ['sms_number'];
 
         $update = [];
         foreach ($fields as $field) {
@@ -458,15 +484,7 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
      */
     public function updateAddress($patron, $details)
     {
-        $result = $this->makeRequest(
-            ['v1', 'patrons', $patron['id']]
-        );
-
-        $request = $result['data'];
-        // Unset read-only fields
-        unset($request['anonymized']);
-        unset($request['restricted']);
-
+        $request = [];
         $addressFields = [];
         $fieldConfig = isset($this->config['updateAddress']['fields'])
             ? $this->config['updateAddress']['fields'] : [];
@@ -486,9 +504,9 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
 
         $result = $this->makeRequest(
             [
-                'path' => ['v1', 'patrons', $patron['id']],
-                'json' >= $request,
-                'method' => 'PUT',
+                'path' => ['v1', 'contrib', 'kohasuomi', 'patrons', $patron['id']],
+                'json' => $request,
+                'method' => 'PATCH',
                 'errors' => true
             ]
         );
@@ -572,13 +590,13 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
             return  [
                 'success' => false,
                 'status' => 'Updating of patron information failed',
-                'sys_message' => $result['error'] ?? $code
+                'sys_message' => $result['error'] ?? $result['code']
             ];
         }
 
         return [
             'success' => true,
-            'status' => $code == 202
+            'status' => $result['code'] == 202
                 ? 'request_change_done' : 'request_change_accepted',
             'sys_message' => ''
         ];
@@ -730,7 +748,7 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
         if ($result['code'] >= 300) {
             $error = "Failed to mark payment of $amount paid for patron"
                 . " {$patron['id']}: {$result['code']}: " . print_r($result, true);
-            $this->error($error);
+            $this->logError($error);
             throw new ILSException($error);
         }
         // Clear patron's block cache
@@ -835,6 +853,126 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
     }
 
     /**
+     * Get Pick Up Locations
+     *
+     * This is responsible for gettting a list of valid library locations for
+     * holds / recall retrieval
+     *
+     * @param array $patron      Patron information returned by the patronLogin
+     * method.
+     * @param array $holdDetails Optional array, only passed in when getting a list
+     * in the context of placing a hold; contains most of the same values passed to
+     * placeHold, minus the patron data.  May be used to limit the pickup options
+     * or may be ignored.  The driver must not add new options to the return array
+     * based on this data or other areas of VuFind may behave incorrectly.
+     *
+     * @throws ILSException
+     * @return array        An array of associative arrays with locationID and
+     * locationDisplay keys
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function getPickUpLocations($patron = false, $holdDetails = null)
+    {
+        $bibId = $holdDetails['id'] ?? null;
+        $itemId = $holdDetails['item_id'] ?? false;
+        $requestId = $holdDetails['requestId'] ?? false;
+        $requestType
+            = array_key_exists('StorageRetrievalRequest', $holdDetails ?? [])
+                ? 'StorageRetrievalRequests' : 'Holds';
+        $included = null;
+        if ($bibId && 'Holds' === $requestType) {
+            // Collect library codes that are to be included
+            $level = !empty($holdDetails['level']) ? $holdDetails['level'] : 'title';
+            if ('copy' === $level && false === $itemId) {
+                return [];
+            }
+            if ('copy' === $level) {
+                $result = $this->makeRequest(
+                    [
+                        'path' => [
+                            'v1', 'contrib', 'kohasuomi', 'availability', 'items',
+                            $itemId, 'hold'
+                        ],
+                        'query' => [
+                            'patron_id' => (int)$patron['id'],
+                            'query_pickup_locations' => 1
+                        ]
+                    ]
+                );
+                if (empty($result['data'])) {
+                    return [];
+                }
+                $notes = $result['data']['availability']['notes'];
+                $included = $notes['Item::PickupLocations']['to_libraries'];
+            } else {
+                $result = $this->makeRequest(
+                    [
+                        'path' => [
+                            'v1', 'contrib', 'kohasuomi', 'availability', 'biblios',
+                            $bibId, 'hold'
+                        ],
+                        'query' => [
+                            'patron_id' => (int)$patron['id'],
+                            'query_pickup_locations' => 1,
+                            'ignore_patron_holds' => $requestId ? 1 : 0,
+                        ]
+                    ]
+                );
+                if (empty($result['data'])) {
+                    return [];
+                }
+                $notes = $result['data']['availability']['notes'];
+                $included = $notes['Biblio::PickupLocations']['to_libraries'];
+            }
+        }
+
+        $excluded = isset($this->config['Holds']['excludePickupLocations'])
+            ? explode(':', $this->config['Holds']['excludePickupLocations']) : [];
+        $locations = [];
+        foreach ($this->getLibraries() as $library) {
+            $code = $library['library_id'];
+            if ((null === $included && !$library['pickup_location'])
+                || in_array($code, $excluded)
+                || (null !== $included && !in_array($code, $included))
+            ) {
+                continue;
+            }
+            $locations[] = [
+                'locationID' => $code,
+                'locationDisplay' => $library['name']
+            ];
+        }
+
+        // Do we need to sort pickup locations? If the setting is false, don't
+        // bother doing any more work. If it's not set at all, default to
+        // alphabetical order.
+        $orderSetting = isset($this->config['Holds']['pickUpLocationOrder'])
+            ? $this->config['Holds']['pickUpLocationOrder'] : 'default';
+        if (count($locations) > 1 && !empty($orderSetting)) {
+            $locationOrder = $orderSetting === 'default'
+                ? [] : array_flip(explode(':', $orderSetting));
+            $sortFunction = function ($a, $b) use ($locationOrder) {
+                $aLoc = $a['locationID'];
+                $bLoc = $b['locationID'];
+                if (isset($locationOrder[$aLoc])) {
+                    if (isset($locationOrder[$bLoc])) {
+                        return $locationOrder[$aLoc] - $locationOrder[$bLoc];
+                    }
+                    return -1;
+                }
+                if (isset($locationOrder[$bLoc])) {
+                    return 1;
+                }
+                return strcasecmp($a['locationDisplay'], $b['locationDisplay']);
+            };
+            usort($locations, $sortFunction);
+        }
+
+        return $locations;
+    }
+
+    /**
      * Public Function which retrieves renew, hold and cancel settings from the
      * driver ini file.
      *
@@ -934,7 +1072,9 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
             $available = $avail['available'];
             $statusCodes = $this->getItemStatusCodes($item);
             $status = $this->pickStatus($statusCodes);
-            if (isset($avail['unavailabilities']['Item::CheckedOut']['due_date'])) {
+            if (isset($avail['unavailabilities']['Item::CheckedOut']['due_date'])
+                && !isset($avail['unavailabilities']['Item::Lost'])
+            ) {
                 $duedate = $this->convertDate(
                     $avail['unavailabilities']['Item::CheckedOut']['due_date'],
                     true
@@ -1249,6 +1389,35 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
     }
 
     /**
+     * Return a location for a Koha item
+     *
+     * @param array $item Item
+     *
+     * @return string
+     */
+    protected function getItemLocationName($item)
+    {
+        $result = parent::getItemLocationName($item);
+
+        if ($this->groupHoldingsByLocation) {
+            $location = $this->translateLocation(
+                $item['location'],
+                !empty($item['location_description'])
+                    ? $item['location_description'] : $item['location']
+            );
+            if ($location) {
+                // Empty translation will result in &#x200C
+                $emptyChar = html_entity_decode('&#x200C;', ENT_NOQUOTES, 'UTF-8');
+                if ($result && $result !== $emptyChar) {
+                    $result .= ', ';
+                }
+                $result .= $location;
+            }
+        }
+        return $result;
+    }
+
+    /**
      * Create a holdings entry
      *
      * @param string $id       Bib ID
@@ -1303,7 +1472,7 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
 
         return [
             'id' => $id,
-            'item_id' => 'HLD_' . $holding['biblionumber'],
+            'item_id' => 'HLD_' . $holdings['biblionumber'],
             'location' => $location,
             'requests_placed' => 0,
             'status' => '',
@@ -1555,5 +1724,69 @@ class KohaRest extends \VuFind\ILS\Driver\KohaRest
             $result['reservations'] = $requests;
         }
         return $result;
+    }
+
+    /**
+     * Translate collection name
+     *
+     * @param string $code        Collection code
+     * @param string $description Collection description
+     *
+     * @return string
+     */
+    protected function translateCollection($code, $description)
+    {
+        $prefix = 'collection_';
+        if (!empty($this->config['Catalog']['id'])) {
+            $prefix .= $this->config['Catalog']['id'] . '_';
+        }
+        return $this->translate(
+            "$prefix$code",
+            null,
+            $description
+        );
+    }
+
+    /**
+     * Get a description for a block
+     *
+     * @param string $reason  Koha block reason
+     * @param array  $details Any details related to the reason
+     *
+     * @return string
+     */
+    protected function getPatronBlockReason($reason, $details)
+    {
+        $params = [];
+        switch ($reason) {
+        case 'Hold::MaximumHoldsReached':
+            $params = [
+                '%%blockCount%%' => $details['current_hold_count'],
+                '%%blockLimit%%' => $details['max_holds_allowed']
+            ];
+            break;
+        case 'Patron::Debt':
+        case 'Patron::DebtGuarantees':
+            $count = isset($details['current_outstanding'])
+                ? $this->safeMoneyFormat->__invoke($details['current_outstanding'])
+                : '-';
+            $limit = isset($details['max_outstanding'])
+                ? $this->safeMoneyFormat->__invoke($details['max_outstanding'])
+                : '-';
+            $params = [
+                '%%blockCount%%' => $count,
+                '%%blockLimit%%' => $limit,
+            ];
+            break;
+        case 'Patron::Debarred':
+            if (!empty($details['comment'])) {
+                $params = [
+                    '%%reason%%' => $details['comment']
+                ];
+                $reason = 'Patron::DebarredWithReason';
+            }
+            break;
+        }
+        return $this->translate($this->patronStatusMappings[$reason] ?? '', $params);
     }
 }
