@@ -1,5 +1,5 @@
 <?php
-return [
+$config = [
     'extends' => 'bootstrap3',
     'helpers' => [
         'factories' => [
@@ -234,11 +234,12 @@ return [
         'vendor/priority-nav.min.js',
         'vendor/leaflet.min.js',
         'vendor/leaflet.draw.min.js',
-        'finna-multiselect.js',
-        'components/02-organisms/00-keywords/keywords.js'
+        'finna-multiselect.js'
     ],
     'less' => [
         'active' => false
     ],
     'favicon' => 'favicon.ico',
 ];
+include 'components.config.php';
+return $config;

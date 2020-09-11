@@ -1,118 +1,119 @@
 <!-- START of: finna - myresearch/mylist.phtml -->
 <?php
-  // Grab list object from search results (if applicable):
-  $list = $this->results->getListObject();
+// Grab list object from search results (if applicable):
+$list = $this->results->getListObject();
 
-  // Set up page title:
-  $this->headTitle(isset($list) ? $list->title : $this->translate('Favorites'));
+// Set up page title:
+$this->headTitle(isset($list) ? $list->title : $this->translate('Favorites'));
 
-  // Set up breadcrumbs:
-  $currPage = isset($list) ? 'List' : 'Favorites';
-  $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc($currPage) . '</li>';
+// Set up breadcrumbs:
+$currPage = isset($list) ? 'List' : 'Favorites';
+$this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc($currPage) . '</li>';
 
-  // Load Javascript dependencies into header:
-  $this->headScript()->appendFile("check_item_statuses.js");
+// Load Javascript dependencies into header:
+$this->headScript()->appendFile("check_item_statuses.js");
 
-  // Load Javascript only if list view parameter is NOT full:
-  if ($this->params->getOptions()->getListViewOption() != "full") {
-    $this->headScript()->appendFile("record.js");
-    $this->headScript()->appendFile("embedded_record.js");
-  }
+// Load Javascript only if list view parameter is NOT full:
+if ($this->params->getOptions()->getListViewOption() != "full") {
+  $this->headScript()->appendFile("record.js");
+  $this->headScript()->appendFile("embedded_record.js");
+}
 
-  $recordTotal = $this->results->getResultTotal();
+$recordTotal = $this->results->getResultTotal();
 
-  // Convenience variable:
-  $account = $this->auth()->getManager();
-  $user = $this->auth()->isLoggedIn();
+// Convenience variable:
+$account = $this->auth()->getManager();
+$user = $this->auth()->isLoggedIn();
 
-  $lists = $user ? $user->getLists() : null;
+$lists = $user ? $user->getLists() : null;
 
-  $this->jsTranslations()->addStrings(['add_note' => 'Add note', 'add_list_description' => 'Add list description', 'loading' => 'Loading', 'preview' => 'Preview', 'details_summary_placeholder' => 'details_summary_placeholder', 'details_text_placeholder' => 'details_text_placeholder']);
+$this->jsTranslations()->addStrings(['add_note' => 'Add note', 'add_list_description' => 'Add list description', 'loading' => 'Loading', 'preview' => 'Preview', 'details_summary_placeholder' => 'details_summary_placeholder', 'details_text_placeholder' => 'details_text_placeholder']);
 ?>
 
 <!-- Leftside navigationbar -->
 <?= $this->context($this)->renderInContext("myresearch/menu.phtml", ['active' => isset($list) ? 'list' . $list['id'] : 'favorites']); ?>
 
-<?php foreach ($this->results->getRecommendations('side') as $current): ?>
-  <?=$this->recommend($current)?>
+<?php foreach ($this->results->getRecommendations('side') as $current) : ?>
+  <?= $this->recommend($current) ?>
 <?php endforeach; ?>
 
-<div class="<?=$this->layoutClass('mainbody-myresearch')?>">
-  <div class="mylist-error hidden"><?=$this->translate('An error has occurred'); ?></div>
-  <?php if (isset($list)): ?>
-    <input type="hidden" name="listID" value="<?=$this->escapeHtmlAttr($list->id)?>" />
-    <input type="hidden" name="listName" value="<?=$this->escapeHtmlAttr($list->title)?>" />
+<div class="<?= $this->layoutClass('mainbody-myresearch') ?>">
+  <div class="mylist-error hidden"><?= $this->translate('An error has occurred'); ?></div>
+  <?php if (isset($list)) : ?>
+    <input type="hidden" name="listID" value="<?= $this->escapeHtmlAttr($list->id) ?>" />
+    <input type="hidden" name="listName" value="<?= $this->escapeHtmlAttr($list->title) ?>" />
   <?php endif; ?>
   <div class="clearfix mylist-header hidden-print">
     <div>
-      <?=$this->flashmessages()?>
+      <?= $this->flashmessages() ?>
     </div>
     <div class="useraccount-header">
-      <?php if ($list): ?>
-        <h2 class="list-title"><i class="list-title-edit fa fa-pen"></i><span><?=$this->escapeHtml($list->title)?></span></h2>
+      <?php if ($list) : ?>
+        <h2 class="list-title"><i class="list-title-edit fa fa-pen"></i><span><?= $this->escapeHtml($list->title) ?></span></h2>
         <div class="list-description markdown">
-          <i class="list-description-edit fa fa-pen" aria-hidden="true"></i><div class="editable" data-markdown="<?=$this->escapeHtmlAttr($list ? $list->description : '')?>"><?=(!empty($list->description) ? $this->markdown()->toHtml($list->description) : $this->translate('Add list description'))?></div>
+          <i class="list-description-edit fa fa-pen" aria-hidden="true"></i>
+          <div class="editable" data-markdown="<?= $this->escapeHtmlAttr($list ? $list->description : '') ?>"><?= (!empty($list->description) ? $this->markdown()->toHtml($list->description) : $this->translate('Add list description')) ?></div>
         </div>
-      <?php else: ?>
-        <h2 class="list-title no-edit"><span><?=$this->transEsc("All Favourites")?></span></h2>
+      <?php else : ?>
+        <h2 class="list-title no-edit"><span><?= $this->transEsc("All Favourites") ?></span></h2>
       <?php endif; ?>
     </div>
   </div>
-  <?php if ($template = $this->content()->findTemplateForLng("content/Additions/myresearch-favorites")): ?>
+  <?php if ($template = $this->content()->findTemplateForLng("content/Additions/myresearch-favorites")) : ?>
     <div class="myresearch-favorites">
-      <?=$this->render($template)?>
+      <?= $this->render($template) ?>
     </div>
   <?php endif; ?>
 
-  <?= $this->partial('components/02-organisms/00-keywords/keywords.phtml', ['editable' => true, 'addKeyword' => 'Add keyword', 'alert' => 'This feature is still in testing', 'form' => ['label' => 'Type a keyword and click "Enter"', 'error' => 'Please provide a keyword'], 'submit' => 'Submit', 'currentKeywords' => 'Current keywords', 'tags' => ['Testing 1', 'Testing 2']]); ?>
+  <?= $this->partial('components/02-organisms/00-keywords/keywords.phtml', ['editable' => true, 'addKeyword' => 'Add keyword', 'alert' => 'This feature is still in testing', 'toggleButtonLabel' => 'Toggle keywords word', 'form' => ['label' => 'Type a keyword and click "Enter"', 'error' => 'Please provide a keyword', 'submit' => 'Submit'], 'submitError' => 'Something went wrong! Please try again later.', 'currentKeywords' => 'Current keywords', 'tags' => []]); ?>
 
   <div class="mylist-header useraccount-header">
-    <?php if ($recordTotal > 0): ?>
+    <?php if ($recordTotal > 0) : ?>
       <div class="mylist-controls-bar">
         <div class="pagination-container">
-          <?=$this->paginationControl($this->results->getPaginator(), 'Sliding', 'search/pagination_simple.phtml', ['results' => $this->results])?>
+          <?= $this->paginationControl($this->results->getPaginator(), 'Sliding', 'search/pagination_simple.phtml', ['results' => $this->results]) ?>
         </div>
         <div class="mylist-controls hidden-print">
-          <?php if (isset($list)): ?>
-            <a class="btn btn-primary" href="<?=$this->url('sortList', ['id' => $list->id]) ?>" data-backdrop=”static” data-lightbox><span class="fa fa-sort"></span> <?=$this->transEsc('Sort manually');?></a>
+          <?php if (isset($list)) : ?>
+            <a class="btn btn-primary" href="<?= $this->url('sortList', ['id' => $list->id]) ?>" data-backdrop=”static” data-lightbox><span class="fa fa-sort"></span> <?= $this->transEsc('Sort manually'); ?></a>
           <?php endif; ?>
-          <?=$this->render('search/controls/sort.phtml')?>
-          <?=$this->render('search/controls/limit.phtml')?>
+          <?= $this->render('search/controls/sort.phtml') ?>
+          <?= $this->render('search/controls/limit.phtml') ?>
         </div>
       </div>
       <div>
-        <form class="form" method="post" name="bulkActionForm" action="<?=$this->url('cart-myresearchbulk')?>" data-lightbox>
-          <?=$this->context($this)->renderInContext('myresearch/bulk-action-buttons.phtml', ['idPrefix' => '', 'list' => $list ?? null, 'account' => $this->account, 'lists' => $lists])?>
-          <?php foreach ($this->results->getResults() as $i => $current): ?>
-            <?=$this->record($current)->getListEntry($list, $user)?>
+        <form class="form" method="post" name="bulkActionForm" action="<?= $this->url('cart-myresearchbulk') ?>" data-lightbox>
+          <?= $this->context($this)->renderInContext('myresearch/bulk-action-buttons.phtml', ['idPrefix' => '', 'list' => $list ?? null, 'account' => $this->account, 'lists' => $lists]) ?>
+          <?php foreach ($this->results->getResults() as $i => $current) : ?>
+            <?= $this->record($current)->getListEntry($list, $user) ?>
           <?php endforeach; ?>
         </form>
       </div>
-    <?php else: ?>
-      <h3><?=$this->transEsc('You do not have any saved resources')?></h3>
+    <?php else : ?>
+      <h3><?= $this->transEsc('You do not have any saved resources') ?></h3>
     <?php endif; ?>
   </div>
-  <?php if ($recordTotal > 0): ?>
+  <?php if ($recordTotal > 0) : ?>
     <div>
       <div class="text-center">
         <hr>
-        <?=$this->paginationControl($this->results->getPaginator(), 'Sliding', 'search/pagination_simple.phtml', ['results' => $this->results])?>
+        <?= $this->paginationControl($this->results->getPaginator(), 'Sliding', 'search/pagination_simple.phtml', ['results' => $this->results]) ?>
       </div>
     </div>
-  <?php endif;?>
+  <?php endif; ?>
 </div>
-<?php if ($user && $list): ?>
-  <form class="pull-left delete-list" action="<?=$this->url('myresearch-deletelist') ?>?listID=<?=urlencode($list->id)?>&confirm=1" method="post">
+<?php if ($user && $list) : ?>
+  <form class="pull-left delete-list" action="<?= $this->url('myresearch-deletelist') ?>?listID=<?= urlencode($list->id) ?>&confirm=1" method="post">
     <ul class="dropdown-menu">
-      <li class="disabled"><a><?=$this->transEsc('confirm_delete_list_text')?></a></li>
-      <li class="confirm"><a href="#"><?=$this->transEsc('confirm_dialog_yes') ?></a></li>
-      <li class="cancel"><a href="#"><?=$this->transEsc('confirm_dialog_no')?></a></li>
+      <li class="disabled"><a><?= $this->transEsc('confirm_delete_list_text') ?></a></li>
+      <li class="confirm"><a href="#"><?= $this->transEsc('confirm_dialog_yes') ?></a></li>
+      <li class="cancel"><a href="#"><?= $this->transEsc('confirm_dialog_no') ?></a></li>
     </ul>
   </form>
 <?php endif; ?>
 <div class="mylist-mobile mobile-navigation visible-xs visible-sm hidden-print">
   <ul>
-    <li class="sidebar-navigation"><i class="fa fa-arrow-up"></i> <?=$this->transEsc('Your Lists')?></li>
+    <li class="sidebar-navigation"><i class="fa fa-arrow-up"></i> <?= $this->transEsc('Your Lists') ?></li>
   </ul>
 </div>
 
