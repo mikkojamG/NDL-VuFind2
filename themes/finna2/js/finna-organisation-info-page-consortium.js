@@ -126,7 +126,7 @@ finna.organisationInfoPageConsortium = (function organisationInfoPageConsortium(
 
           var $finnaLinkList = $('<ul/>');
 
-          template = linksHolder.find('li.template').removeClass('template');
+          // template = linksHolder.find('li.template').removeClass('template');
           $(finnaLink).each(function initFinnaLink(ind, obj) {
             // var li = template.clone();
             // var a = li.find('a');
