@@ -68,153 +68,153 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
     holder.find('.office-information-loader').toggle(mode);
   }
 
-  function updateSelectedOrganisation(id, clearSearch) {
-    setOfficeInformationLoader(true);
-    holder.find('.error, .info-element').hide();
-    infoWidget.showDetails(id, '', true);
-    if (clearSearch) {
-      $('#office-search').val('');
-    }
+  // function updateSelectedOrganisation(id, clearSearch) {
+  //   setOfficeInformationLoader(true);
+  //   holder.find('.error, .info-element').hide();
+  //   infoWidget.showDetails(id, '', true);
+  //   if (clearSearch) {
+  //     $('#office-search').val('');
+  //   }
 
-    var notification = holder.find('.office-search-notifications .notification');
-    if (id in organisationList) {
-      var data = organisationList[id];
-      map.hideMarker();
-      if ('address' in data && 'coordinates' in data.address) {
-        map.selectMarker(id);
-        notification.hide();
-      } else {
-        map.reset();
-        notification.show().delay(2000).fadeOut(500);
-        setOfficeInformationLoader(false);
-      }
-      return;
-    } else {
-      setOfficeInformationLoader(false);
-    }
-  }
+  //   var notification = holder.find('.office-search-notifications .notification');
+  //   if (id in organisationList) {
+  //     var data = organisationList[id];
+  //     map.hideMarker();
+  //     if ('address' in data && 'coordinates' in data.address) {
+  //       map.selectMarker(id);
+  //       notification.hide();
+  //     } else {
+  //       map.reset();
+  //       notification.show().delay(2000).fadeOut(500);
+  //       setOfficeInformationLoader(false);
+  //     }
+  //     return;
+  //   } else {
+  //     setOfficeInformationLoader(false);
+  //   }
+  // }
 
-  function initMap() {
-    $.each(organisationList, function handleOrganisation(ind, obj) {
-      // Map data (info bubble, icon)
-      var bubble = holder.find('.map-bubble-template').clone();
-      bubble.find('.name').text(obj.name);
-      var openNow = null;
-      if ('openNow' in obj) {
-        openNow = obj.openNow;
-      }
+  // function initMap() {
+  //   $.each(organisationList, function handleOrganisation(ind, obj) {
+  //     // Map data (info bubble, icon)
+  //     var bubble = holder.find('.map-bubble-template').clone();
+  //     bubble.find('.name').text(obj.name);
+  //     var openNow = null;
+  //     if ('openNow' in obj) {
+  //       openNow = obj.openNow;
+  //     }
 
-      if ('openTimes' in obj && obj.openTimes.schedules.length) {
-        var scheduleTable = bubble.find('table');
-        scheduleTable.find('tr').not('.template').remove();
-        $.each(obj.openTimes.schedules, function handleOpenTimes(tind, scheduleObj) {
-          var tr;
-          if (!('closed' in scheduleObj)) { //scheduleObj['times'].length) {
-            var timeObj = scheduleObj.times[0];
-            tr = scheduleTable.find('tr:first-child').clone();
-            tr.removeClass('template hide');
-            if ('today' in scheduleObj) {
-              tr.addClass(openNow ? 'open' : 'closed');
-            }
-            tr.find('.day').text(scheduleObj.day);
-            tr.find('.opens').text(timeObj.opens);
-            tr.find('.closes').text(timeObj.closes);
-            scheduleTable.find('tbody').append(tr);
-          } else {
-            tr = scheduleTable.find('tr:first-child').clone();
-            tr.removeClass('template hide');
-            if ('today' in scheduleObj) {
-              tr.addClass('today');
-            }
-            tr.find('.day').text(scheduleObj.day);
-            tr.find('.time').hide();
-            tr.find('.time.closed-today').show().removeClass('hide');
-            scheduleTable.find('tbody').append(tr);
-          }
-        });
-      }
+  //     if ('openTimes' in obj && obj.openTimes.schedules.length) {
+  //       var scheduleTable = bubble.find('table');
+  //       scheduleTable.find('tr').not('.template').remove();
+  //       $.each(obj.openTimes.schedules, function handleOpenTimes(tind, scheduleObj) {
+  //         var tr;
+  //         if (!('closed' in scheduleObj)) { //scheduleObj['times'].length) {
+  //           var timeObj = scheduleObj.times[0];
+  //           tr = scheduleTable.find('tr:first-child').clone();
+  //           tr.removeClass('template hide');
+  //           if ('today' in scheduleObj) {
+  //             tr.addClass(openNow ? 'open' : 'closed');
+  //           }
+  //           tr.find('.day').text(scheduleObj.day);
+  //           tr.find('.opens').text(timeObj.opens);
+  //           tr.find('.closes').text(timeObj.closes);
+  //           scheduleTable.find('tbody').append(tr);
+  //         } else {
+  //           tr = scheduleTable.find('tr:first-child').clone();
+  //           tr.removeClass('template hide');
+  //           if ('today' in scheduleObj) {
+  //             tr.addClass('today');
+  //           }
+  //           tr.find('.day').text(scheduleObj.day);
+  //           tr.find('.time').hide();
+  //           tr.find('.time.closed-today').show().removeClass('hide');
+  //           scheduleTable.find('tbody').append(tr);
+  //         }
+  //       });
+  //     }
 
-      obj.map = {info: bubble.html()};
-    });
+  //     obj.map = {info: bubble.html()};
+  //   });
 
-    var defaultId = Object.keys(organisationList)[0];
-    map.draw(organisationList, defaultId);
+  //   var defaultId = Object.keys(organisationList)[0];
+  //   map.draw(organisationList, defaultId);
 
-    // Expand map
-    holder.find('.expand-map').click(function onClickExpandMap() {
-      mapHolder.toggleClass('expand', true);
-      map.resize();
-      $(this).hide();
-      holder.find('.contract-map').show();
-    });
-    holder.find('.contract-map').click (function onClickContractMap() {
-      mapHolder.toggleClass('expand', false);
-      map.resize();
-      $(this).hide();
-      holder.find('.expand-map').show();
-    });
-  }
+  //   // Expand map
+  //   holder.find('.expand-map').click(function onClickExpandMap() {
+  //     mapHolder.toggleClass('expand', true);
+  //     map.resize();
+  //     $(this).hide();
+  //     holder.find('.contract-map').show();
+  //   });
+  //   holder.find('.contract-map').click (function onClickContractMap() {
+  //     mapHolder.toggleClass('expand', false);
+  //     map.resize();
+  //     $(this).hide();
+  //     holder.find('.expand-map').show();
+  //   });
+  // }
 
-  function initSearch() {
-    var officeSearch = holder.find('#office-search');
-    officeSearch.autocomplete({
-      source: function autocompleteSource(request, response) {
-        var term = request.term.toLowerCase();
-        var result = [];
-        $.each(organisationList, function handleOrganisation(id, obj) {
-          if (obj.name.toLowerCase().indexOf(term) !== -1) {
-            result.push({value: id, label: obj.name});
-          }
-        });
-        result = result.sort(function sortCallback(a, b) {
-          return a.label > b.label ? 1 : -1;
-        });
-        response(result);
-      },
+  // function initSearch() {
+  //   var officeSearch = holder.find('#office-search');
+  //   officeSearch.autocomplete({
+  //     source: function autocompleteSource(request, response) {
+  //       var term = request.term.toLowerCase();
+  //       var result = [];
+  //       $.each(organisationList, function handleOrganisation(id, obj) {
+  //         if (obj.name.toLowerCase().indexOf(term) !== -1) {
+  //           result.push({value: id, label: obj.name});
+  //         }
+  //       });
+  //       result = result.sort(function sortCallback(a, b) {
+  //         return a.label > b.label ? 1 : -1;
+  //       });
+  //       response(result);
+  //     },
 
-      select: function onSelectAutocomplete(event, ui) {
-        holder.find('#office-search').val(ui.item.label);
-        var hash = ui.item.value;
-        updateWindowHash(hash);
-        return false;
-      },
+  //     select: function onSelectAutocomplete(event, ui) {
+  //       holder.find('#office-search').val(ui.item.label);
+  //       var hash = ui.item.value;
+  //       updateWindowHash(hash);
+  //       return false;
+  //     },
 
-      focus: function onFocusAutocomplete(/*event, ui*/) {
-        if ($(window).width() < 768) {
-          $('html, body').animate({
-            scrollTop: officeSearch.offset().top - 5
-          }, 100);
-        }
-        return false;
-      },
-      open: function onOpenAutocomplete(/*event, ui*/) {
-        if (navigator.userAgent.match(/(iPod|iPhone|iPad)/)) {
-          holder.find('.ui-autocomplete').off('menufocus hover mouseover');
-        }
-      },
-      minLength: 0,
-      delay: 100,
-      appendTo: '.autocomplete-container',
-      autoFocus: false
-    }).data("ui-autocomplete")._renderItem = function addLabels(ul, item) {
-      return $('<li>')
-        .attr('aria-label', item.label)
-        .html(item.label)
-        .appendTo(ul);
-    };
-    officeSearch.on('click', function onClickSearch() {
-      officeSearch.autocomplete('search', $(this).val());
-    });
-    officeSearch.find('li').on('touchstart', function onTouchStartSearch() {
-      officeSearch.autocomplete('search', $(this).val());
-    });
-    holder.find('.btn-office-search').on('click', function onClickSearchBtn(e) {
-      officeSearch.autocomplete('search', '');
-      officeSearch.focus();
-      e.preventDefault();
-      return false;
-    });
-  }
+  //     focus: function onFocusAutocomplete(/*event, ui*/) {
+  //       if ($(window).width() < 768) {
+  //         $('html, body').animate({
+  //           scrollTop: officeSearch.offset().top - 5
+  //         }, 100);
+  //       }
+  //       return false;
+  //     },
+  //     open: function onOpenAutocomplete(/*event, ui*/) {
+  //       if (navigator.userAgent.match(/(iPod|iPhone|iPad)/)) {
+  //         holder.find('.ui-autocomplete').off('menufocus hover mouseover');
+  //       }
+  //     },
+  //     minLength: 0,
+  //     delay: 100,
+  //     appendTo: '.autocomplete-container',
+  //     autoFocus: false
+  //   }).data("ui-autocomplete")._renderItem = function addLabels(ul, item) {
+  //     return $('<li>')
+  //       .attr('aria-label', item.label)
+  //       .html(item.label)
+  //       .appendTo(ul);
+  //   };
+  //   officeSearch.on('click', function onClickSearch() {
+  //     officeSearch.autocomplete('search', $(this).val());
+  //   });
+  //   officeSearch.find('li').on('touchstart', function onTouchStartSearch() {
+  //     officeSearch.autocomplete('search', $(this).val());
+  //   });
+  //   holder.find('.btn-office-search').on('click', function onClickSearchBtn(e) {
+  //     officeSearch.autocomplete('search', '');
+  //     officeSearch.focus();
+  //     e.preventDefault();
+  //     return false;
+  //   });
+  // }
 
   function loadOrganisationList(buildings, orgId) {
     service.getOrganisations('page', parent, buildings, {id: orgId}, function onGetOrganisation(response, params) {
