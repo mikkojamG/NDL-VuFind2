@@ -16,27 +16,27 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
     holder.find('.organisation-info-page').html('');
   }
 
-  function updateWindowHash(hash) {
-    // Create a fake hidden div with id=hash and absolute position
-    // so that window scroll position is preserved when the hash is updated below.
-    holder.find('div.hash').remove();
-    $('<div/>')
-      .css({
-        position: 'absolute',
-        visibility: 'hidden',
-        top: $(document).scrollTop() + 'px'
-      })
-      .addClass('hash')
-      .attr( 'id', hash )
-      .appendTo(holder);
+  // function updateWindowHash(hash) {
+  //   // Create a fake hidden div with id=hash and absolute position
+  //   // so that window scroll position is preserved when the hash is updated below.
+  //   holder.find('div.hash').remove();
+  //   $('<div/>')
+  //     .css({
+  //       position: 'absolute',
+  //       visibility: 'hidden',
+  //       top: $(document).scrollTop() + 'px'
+  //     })
+  //     .addClass('hash')
+  //     .attr( 'id', hash )
+  //     .appendTo(holder);
 
-    if (hash === window.location.hash) {
-      // Set hash first to empty value, so that onhashchange is triggered when
-      // the same menu item is re-selected.
-      window.location.hash = '';
-    }
-    window.location.hash = hash;
-  }
+  //   if (hash === window.location.hash) {
+  //     // Set hash first to empty value, so that onhashchange is triggered when
+  //     // the same menu item is re-selected.
+  //     window.location.hash = '';
+  //   }
+  //   window.location.hash = hash;
+  // }
 
   function updateConsortiumNotification(data) {
     if ('consortium' in data) {
