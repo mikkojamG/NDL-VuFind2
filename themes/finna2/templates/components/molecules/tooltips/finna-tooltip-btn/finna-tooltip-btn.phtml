@@ -1,0 +1,5 @@
+<button type="button" class="finna-tooltip-btn <?= $additionalClasses ?? '' ?>" data-toggle="tooltip" data-html="true"
+  data-placement="<?= $placement ?? 'bottom' ?>"<?php if (!$label || !empty($ariaLabel)): ?> aria-label="<?= $ariaLabel ?>"<?php endif; ?>
+  data-original-title="<?= $content ?>">
+  <?php if ($iconClass): ?><i class="fa <?= $iconClass ?>"></i><?php endif; ?> <?= $label ?? '' ?>
+</button>
