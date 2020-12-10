@@ -41,7 +41,7 @@ finna.servicePointInfo = (function finnaServicePointInfo(root) {
     }
 
     if (data.email) {
-      $holder.find('.js-service-point-email').text(data.email.replace('@', '(at)'))
+      $holder.find('.js-service-point-email').text(data.email.replace('@', '(at)'));
     }
 
     if (data.homepage) {
@@ -67,7 +67,7 @@ finna.servicePointInfo = (function finnaServicePointInfo(root) {
           .removeClass('hide');
       }
     }
-  }
+  };
 
   var getOrganisationsData = function getOrganisationsData(organisation) {
     var deferred = $.Deferred();
@@ -142,5 +142,5 @@ finna.servicePointInfo = (function finnaServicePointInfo(root) {
         getServicePoint(data);
       });
     }
-  }
+  };
 });

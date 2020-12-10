@@ -166,5 +166,5 @@ finna.organisationFeed = (function organisationFeed(root) {
         getFeed(params);
       });
     }
-  }
+  };
 });

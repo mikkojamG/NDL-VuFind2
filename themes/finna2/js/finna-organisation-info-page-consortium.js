@@ -193,7 +193,7 @@ finna.organisationInfoPageConsortium = (function organisationInfoPageConsortium(
 
       // $('<a/>').attr('href', consortiumHomepage).text(label).appendTo(linkHolder);
 
-      $('.js-consortium-logo').find('figcaption').html($('<a/>').attr('href', consortiumHomepage).text(label))
+      $('.js-consortium-logo').find('figcaption').html($('<a/>').attr('href', consortiumHomepage).text(label));
     }
 
     // Organisation list

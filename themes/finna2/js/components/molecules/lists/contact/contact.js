@@ -58,7 +58,7 @@ finna.organisationContactList = (function organisationContactList(root) {
             var contactData = dynamicItems.filter(function filterItem(item) {
               if (data[item.dataKey] || data.details[item.dataKey]) {
 
-                var contactDataObject
+                var contactDataObject;
 
                 if (data[item.dataKey]) {
                   contactDataObject = Object.assign(item, { content: data[item.dataKey] });
@@ -90,5 +90,5 @@ finna.organisationContactList = (function organisationContactList(root) {
         getContactItems();
       });
     }
-  }
+  };
 });

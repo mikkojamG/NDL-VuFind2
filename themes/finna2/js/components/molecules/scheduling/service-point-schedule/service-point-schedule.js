@@ -211,7 +211,7 @@ finna.servicePointSchedule = (function servicePointSchedule(root) {
     }
 
     $holder.find('.js-is-open').removeClass('hide');
-  }
+  };
 
   var appendSchedulesData = function appendSchedulesData(data) {
     var id = $holder.data('service-point-id');
@@ -411,5 +411,5 @@ finna.servicePointSchedule = (function servicePointSchedule(root) {
         getServicePointSchedules();
       });
     }
-  }
+  };
 });

@@ -60,7 +60,7 @@ finna.servicePointBuilding = (function servicePointBuilding(root) {
 
         extraImages.forEach(function forEachExtraImage($image) {
           $content.find('.js-building-image-secondary').append($image);
-        })
+        });
 
         $content.find('.js-building-image-secondary').removeClass('hide');
       }
@@ -102,9 +102,9 @@ finna.servicePointBuilding = (function servicePointBuilding(root) {
         $loader.removeClass('hide');
         $content.find('.js-building-image-secondary').empty();
 
-        getServicePoint(data)
-      })
+        getServicePoint(data);
+      });
     }
-  }
+  };
 });
 

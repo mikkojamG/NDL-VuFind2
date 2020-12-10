@@ -119,5 +119,5 @@ finna.organisationServicesList = (function organisationServicesList(root) {
         getServices();
       });
     }
-  }
+  };
 });

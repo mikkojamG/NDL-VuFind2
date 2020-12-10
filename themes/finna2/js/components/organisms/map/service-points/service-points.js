@@ -20,7 +20,7 @@ finna.mapWidget = (function finnaMapWidget(root) {
     if ($selectedMarker) {
       $selectedMarker.closePopup();
     }
-  }
+  };
 
   var selectMarker = function selectMarker(id) {
     var marker;
@@ -78,7 +78,7 @@ finna.mapWidget = (function finnaMapWidget(root) {
       var x = offset.left - holderOffset.left;
       var y = offset.top - holderOffset.top;
 
-      $ref.trigger('marker-mouseover', { id: servicePoint.id, x: x, y: y })
+      $ref.trigger('marker-mouseover', { id: servicePoint.id, x: x, y: y });
     });
 
     $marker.on('mouseout', function onMarkerMouseOut() {
@@ -125,7 +125,7 @@ finna.mapWidget = (function finnaMapWidget(root) {
 
       var $marker = L.marker([point.lat, point.lon], { icon: icon }).addTo($map);
 
-      setMarkerEventListeners($marker, $ref, servicePoint)
+      setMarkerEventListeners($marker, $ref, servicePoint);
 
       var bubble = getMarkerBubbleHtml(servicePoint);
 
@@ -313,7 +313,7 @@ finna.mapWidget = (function finnaMapWidget(root) {
           return {
             value: servicePointList[key].id,
             label: servicePointList[key].name
-          }
+          };
         });
 
         result = result.sort(function sortCallback(a, b) {
@@ -369,7 +369,7 @@ finna.mapWidget = (function finnaMapWidget(root) {
       autoFocus: false
     }).data('ui-autocomplete')._renderItem = function addLabels(ul, item) {
       var $button = $('<button />').html(item.label);
-      var $li = $('<li/>').attr('aria-label', item.label)
+      var $li = $('<li/>').attr('aria-label', item.label);
 
       $li.append($button);
 
@@ -437,7 +437,7 @@ finna.mapWidget = (function finnaMapWidget(root) {
           servicePointList = res;
 
           initMapWidget();
-        })
+        });
       } else {
         servicePointList = servicePoints;
         initMapWidget();
