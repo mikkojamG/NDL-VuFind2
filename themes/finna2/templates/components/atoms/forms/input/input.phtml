@@ -1,7 +1,0 @@
-<label for="<?= $inputName; ?>" class="<?= isset($labelClass) ? $labelClass : ''; ?>">
-  <?= $label; ?>
-</label>
-<input class="form-control <?= isset($inputClass) ? $inputClass : ''; ?>" id="<?= $inputName; ?>" name="<?= $inputName; ?>" placeholder="<?= $placeholder; ?>" aria-placeholder="<?= $placeholder; ?>" <?= (isset($required) && $required) ? 'aria-required="true" required="true"' : ''; ?> type="<?= $type ?>" />
-<?php if (isset($required) && $required) : ?>
-  <div class="invalid-feedback"><?= $errorMessage; ?></div>
-<?php endif; ?>

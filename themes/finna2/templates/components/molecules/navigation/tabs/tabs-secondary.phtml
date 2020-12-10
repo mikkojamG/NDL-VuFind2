@@ -1,7 +1,0 @@
-<ul class="nav finna-secondary-tabs-nav <?= $tablistClass ?? ''; ?>" role="tablist" aria-label="<?= $label; ?>">
-  <?php foreach ($tabs as $tab) : ?>
-    <li role="tab" id="<?= $tab['id']; ?>" class="<?= isset($tab['active']) && $tab['active'] ? 'active' : ''; ?>" aria-selected="<?= isset($tab['active']) && $tab['active'] ? 'true' : 'false'; ?>">
-      <a href="<?= $tab['href']; ?>"><?= $tab['name']; ?></a>
-    </li>
-  <?php endforeach; ?>
-</ul>
