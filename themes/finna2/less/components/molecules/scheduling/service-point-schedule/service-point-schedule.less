@@ -1,0 +1,212 @@
+.service-point-schedule {
+  .loader {
+    margin: 0.5rem auto;
+  }
+
+  .organisation-dropdown {
+    &-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    &-holder {
+      display: inline-block;
+
+      > span {
+        display: inline-block;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .dropdown {
+        display: inline-block;
+        max-width: 100%;
+        margin-bottom: 0;
+
+        &.open {
+          .dropdown-togle {
+            background-color: @gray-lighter;
+            color: @gray;
+            border-color: @gray-lighter;
+          }
+        }
+
+        &-toggle {
+          height: auto;
+          width: auto;
+          color: @gray;
+          border: 1px solid @gray-lighter;
+          padding: 0 0.8rem;
+          border-radius: 1rem;
+          white-space: nowrap;
+          font-size: 1.4rem;
+          transition: background 0.1s linear, color 0.2s linear;
+          margin-top: 0;
+          margin-right: 0.2rem;
+          margin-bottom: 0;
+          background: none;
+          line-height: 2.5;
+
+          &:hover,
+          &:focus {
+            background-color: @gray-lighter;
+            color: @gray;
+            border: @gray-lighter;
+          }
+        }
+
+        .dropdown-menu {
+          max-height: 80vh;
+          overflow: auto;
+          margin-top: 0.4rem;
+          min-width: 20rem;
+          overflow-x: hidden;
+
+          li {
+            padding: 0;
+            transition: background 0.2s linear;
+            color: @gray;
+
+            &:hover {
+              background: @gray-lighter;
+              cursor: pointer;
+              text-decoration: none;
+            }
+
+            button {
+              background: none;
+              border: none;
+              width: 100%;
+              text-align: left;
+              padding: 1.2rem 0.8rem;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .is-open {
+    font-size: 1.45em;
+    font-weight: bold;
+    float: right;
+    line-height: 1em;
+    margin-top: 0;
+    margin-right: 0.3rem;
+
+    &.open {
+      color: green;
+    }
+
+    &.closed {
+      color: red;
+    }
+  }
+
+  .week-navigation {
+    &.week-navi-holder {
+      max-width: 100%;
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      font-size: 1.1em;
+    }
+
+    &-control {
+      border: none;
+      background-color: transparent;
+
+      i {
+        font-size: 1.6em;
+        margin-left: 0.4rem;
+        vertical-align: middle;
+        margin-top: 0;
+        color: @link-color;
+
+        &:hover {
+          cursor: pointer;
+        }
+      }
+    }
+  }
+
+  .opening-times-week {
+    max-width: 100% !important;
+    font-size: 1.4rem;
+    width: 100%;
+    margin-bottom: 2rem;
+
+    .day-container {
+      margin-bottom: 0.1rem;
+      padding: 0.2rem;
+
+      &.today {
+        background: @gray-lighter;
+        font-weight: bold;
+      }
+
+      .time-row {
+        width: 100%;
+        line-height: 1.26em;
+
+        &:first-of-type .name-staff {
+          display: none;
+        }
+
+        &.staff {
+          margin-top: 0.1rem;
+          font-size: 0.94em;
+
+          &:last-child {
+            margin-bottom: 0.5rem;
+          }
+        }
+
+        .date,
+        .description,
+        .time-container {
+          padding: 0 0.5rem;
+        }
+
+        .date {
+          width: 20%;
+        }
+
+        .description {
+          width: 45%;
+
+          .info {
+            margin-left: 0.5rem;
+            margin-right: 0.5rem;
+          }
+
+          .name-staff,
+          .selfservice-only {
+            color: @gray-light;
+            font-size: 0.94em;
+          }
+
+          .selfservice-only {
+            margin-left: 0.5rem;
+          }
+        }
+
+        .time-container {
+          width: 30%;
+          text-align: right;
+        }
+      }
+
+      .cell {
+        display: inline-block;
+        vertical-align: top;
+      }
+    }
+
+    .name.staff {
+      color: @gray-light;
+    }
+  }
+}

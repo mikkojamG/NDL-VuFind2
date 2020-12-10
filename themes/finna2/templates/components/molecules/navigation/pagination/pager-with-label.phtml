@@ -1,0 +1,13 @@
+<div class="pager-with-label <?= $wrapperClass ?? ''; ?>">
+  <button class="<?= $prevButton['class'] ?? 'btn-link'; ?>" data-dir="-1">
+    <i class="<?= $prevButton['icon'] ?? 'fa fa-arrow-left'; ?>" aria-hidden="true"></i>
+    <span class="sr-only"><?= $prevButton['text']; ?></span>
+  </button>
+  <span class="pager-label <?= $labelClass ?? ''; ?>">
+    <?= $label; ?>
+  </span>
+  <button class="<?= $nextButton['class'] ?? 'btn-link'; ?>" data-dir="+1">
+    <i class="<?= $nextButton['icon'] ?? 'fa fa-arrow-right'; ?>" aria-hidden="true"></i>
+    <span class="sr-only"><?= $nextButton['text']; ?></span>
+  </button>
+</div>

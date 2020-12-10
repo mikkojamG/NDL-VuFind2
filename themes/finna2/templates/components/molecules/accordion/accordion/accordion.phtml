@@ -1,0 +1,19 @@
+<?php
+$iconClass = isset($icon) ? $icon :  'fa fa-handle-open';
+$open = isset($initallyOpen) && $initallyOpen;
+?>
+
+<div class="collapse-accordion<?= (isset($darkTheme) && $darkTheme) ? ' collapse-accordion-dark' : ''; ?><?= (isset($outline) && $outline) ? ' collapse-accordion-outline' : ''; ?> <?= $wrapperClass ?? ''; ?>">
+  <button type="button" id="<?= $titleId; ?>" class="collapse-accordion-title<?= $open ? '' : ' collapsed'; ?>" data-toggle="collapse" data-target="#<?= $contentId; ?>" aria-expanded="<?= $open ? 'true' : 'false'; ?>" aria-controls="<?= $contentId; ?>">
+    <?php if (!isset($iconAlign)) : ?>
+      <i class="collapse-accordion-icon <?= $iconClass; ?>" aria-hidden="true"></i>
+    <?php endif; ?>
+    <?= $title; ?>
+    <?php if (isset($iconAlign) && $iconAlign == 'right') : ?>
+      <i class="collapse-accordion-icon <?= $iconClass; ?> pull-right" aria-hidden="true"></i>
+    <?php endif; ?>
+  </button>
+  <div id="<?= $contentId; ?>" aria-expanded="<?= $open ? 'true' : 'false'; ?>" class="collapse-accordion-panel collapse<?= $open ? ' in' : ''; ?>" aria-labelledby="<?= $titleId; ?>">
+    <?= $content; ?>
+  </div>
+</div>

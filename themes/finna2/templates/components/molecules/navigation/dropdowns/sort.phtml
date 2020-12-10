@@ -1,0 +1,22 @@
+<div class="dropdown <?= $dropdownClass ?? ''; ?>">
+  <button class="btn dropdown-toggle <?= (isset($outline) && $outline) ? 'btn-outline-primary' : 'btn-primary'; ?> <?= $buttonClass ?? ''; ?>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <span class="<?= $labelClass ?? '' ?>">
+      <?= $label; ?>
+    </span>
+    <?php if (isset($iconLabel)) : ?>
+      <span class="more">
+        <?= $iconLabel; ?> <i class="fa fa-handle-open" aria-hidden="true"></i>
+      </span>
+    <?php else : ?>
+      <i class="fa fa-arrow-down"></i>
+    <?php endif; ?>
+  </button>
+  <ul class="dropdown-menu" role="menu">
+    <?php foreach ($items as $item) : ?>
+      <li role="menuitem">
+        <a href="<?= $item['href']; ?>" class="<?= (isset($item['active']) && $item['active']) ? 'active' : ''; ?>"><?= $item['name']; ?></a>
+      </li>
+    <?php endforeach; ?>
+  </ul>
+  <noscript><input type="submit" class="btn btn-default" value="<?= $fallbackLabel; ?>" /></noscript>
+</div>

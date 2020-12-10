@@ -1,0 +1,4 @@
+<label for="<?= $inputName ?>" class="<?= isset($labelClass) ? $labelClass : ''; ?>">
+  <input class="<?= isset($inputClass) ? $inputClass : ''; ?>" type="radio" name="<?= $groupName ?>" id="<?= $inputName ?>" value="<?= $value; ?>" <?= isset($checked) && $checked ? 'checked' : '' ?> />
+  <?= $value; ?>
+</label>

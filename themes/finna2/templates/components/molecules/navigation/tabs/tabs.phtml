@@ -1,0 +1,11 @@
+<ul class="nav nav-tabs <?= $tablistClass ?? ''; ?>" role="tablist" aria-label="<?= $label; ?>">
+  <?php foreach ($tabs as $tab) : ?>
+    <li role="tab" id="<?= $tab['id']; ?>" class="<?= (isset($tab['active']) && $tab['active']) ? 'active' : ''; ?>" aria-selected="<?= (isset($tab['active']) && $tab['active']) ? 'true' : 'false'; ?>">
+      <a href="<?= $tab['href']; ?>"><?= $tab['name']; ?></a>
+
+      <?php if (isset($tab['tooltip']) && isset($tab['tooltipLabel'])) : ?>
+        <?= $this->render('components/atoms/tooltips/tooltip/tooltip.phtml', ['buttonClasses' => ['tooltip'], 'position' => 'bottom', 'content' => $tab['tooltip'], 'buttonText' => '<i class="fa fa-info-big"  aria-hidden="true"></i>', 'label' => $tab['tooltipLabel']]) ?>
+      <?php endif; ?>
+    </li>
+  <?php endforeach; ?>
+</ul>

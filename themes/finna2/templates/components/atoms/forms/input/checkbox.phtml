@@ -1,0 +1,6 @@
+<label for="<?= $inputName; ?>" class="<?= isset($labelClass) ? $labelClass : ''; ?>">
+  <input class="<?= isset($inputClass) ? $inputClass : ''; ?>" type="checkbox" value="" name="<?= $inputName; ?>" id="<?= $inputName; ?>" <?= (isset($required) && $required) ? 'aria-required="true" required="true"' : ''; ?> /> <?= $label; ?>
+</label>
+<?php if (isset($required) && $required) : ?>
+  <div class="invalid-feedback"><?= $errorMessage; ?></div>
+<?php endif; ?>

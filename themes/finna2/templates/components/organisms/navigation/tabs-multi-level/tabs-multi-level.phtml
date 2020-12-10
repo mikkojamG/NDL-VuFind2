@@ -1,0 +1,12 @@
+<div class="finna-multi-level-tabs <?= $menuClass ?? ''; ?>">
+  <div class="finna-main-tabs">
+    <?= $this->render('components/molecules/navigation/tabs/tabs.phtml', ['tablistClass' => 'hidden-xs', 'label' => $tablistLabel, 'tabs' => $tabs]) ?>
+
+    <div class="mobile-main-tabs visible-xs">
+      <?= $this->render('components/molecules/navigation/dropdowns/sort.phtml', ['labelClass' => 'text-left tab-title', 'label' => $tablistLabel, 'iconLabel' => $more, 'items' => $tabs, 'dropdownClass' => 'btn-block', 'fallbackLabel' => $fallbackLabel]) ?>
+    </div>
+  </div>
+  <div class="finna-secondary-tabs">
+    <?= $this->render('components/molecules/navigation/tabs/tabs-secondary.phtml', ['label' => $secondaryTablistLabel, 'tabs' => $secondaryTabs]) ?>
+  </div>
+</div>

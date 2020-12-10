@@ -1,0 +1,77 @@
+<?php
+$showForm = isset($showSearchForm) && $showSearchForm;
+?>
+
+<div class="service-points <?= $wrapperClass; ?>" data-service-point-id="<?= $servicePointId ?? ''; ?>" data-organisation="<?= $organisation; ?>">
+  <?php if (isset($mapHeading)) : ?>
+    <h2><?= $mapHeading; ?></h2>
+  <?php endif; ?>
+  <p class="consortium-notification hide"></p>
+  <div class="service-points-control-bar">
+    <div class="search-form-wrapper<?= !$showForm ? ' hide' : ''; ?>">
+      <span class="sr-only js-search-status" role="status" aria-live="polite" data-status-placeholder="<?= $searchFormStatusText; ?> {item}"></span>
+      <?= $this->render('components/molecules/forms/search/search.phtml', ['label' => $searchFormLabel, 'wrapperClass' => 'js-service-points-form', 'placeholder' => $searchFormPlaceholder ?? '']) ?>
+      <?= $this->render('components/molecules/messaging/alert/alert.phtml', ['alert' => $locationNotAvailableText, 'alertClass' => 'alert-danger not-available-notification js-location-not-available hide']) ?>
+      <div class="js-autocomplete-container"></div>
+    </div>
+    <div class="map-controls">
+      <button type="button" class="map-control-show btn btn-primary js-show-map"><?= $showMapButton; ?></button>
+      <div class="map-controls-wrapper hide js-map-controls">
+        <button type="button" class="map-control js-center"><?= $centerMapButton; ?></button>
+        <button type="button" class="map-control js-show-all hide"><?= $showAllMarkersButton; ?></button>
+      </div>
+    </div>
+  </div>
+  <div class="map hide js-map-holder" aria-hidden="true">
+    <div id="<?= $mapWrapperClass; ?>" class="map-widget <?= $mapWrapperClass; ?>"></div>
+    <div class="js-marker-tooltip hide"></div>
+  </div>
+  <?= $this->render('components/molecules/info-block/service-point/service-point-info.phtml', ['servicePointId' => $servicePointId, 'organisation' => $organisation, 'wrapperClass' => $infoWrapperClass, 'directionsText' => $directionsText, 'homepageText' => $homepageText, 'openText' => $openText, 'openTodayText' => $openTodayText, 'staffAvailableText' => $staffAvailableText, 'closedText' => $closedText]); ?>
+</div>
+<template class="js-map-bubble">
+  <div>
+    <p class="name js-name"></p>
+    <p class="js-address"></p>
+  </div>
+</template>
+<template class="js-attribution">
+  <i class="fa fa-map-marker marker open" aria-hidden="true"></i>
+  <span class="map-marker-text"><?= $openText; ?></span>
+  <i class="fa fa-map-marker marker closed" aria-hidden="true"></i>
+  <span class="map-marker-text"><?= $closedText; ?></span>
+  <i class="fa fa-map-marker marker no-schedule" aria-hidden="true"></i>
+  <span class="map-marker-text"><?= $notAvailableText; ?></span>
+  <span class="js-expand-map map-marker-text marker">
+    <i class="fa fa-expand" aria-hidden="true"></i><?= $expandMapText; ?>
+  </span>
+  <span class="js-contract-map map-marker-text marker hide">
+    <i class="fa fa-condense" aria-hidden=""></i>
+    <?= $collapseMapText; ?>
+  </span>
+</template>
+<?php
+$buildingsArray = json_encode($buildings ?? []);
+$js = <<<JS
+  $(document).ready(function onDocumentReady() {
+    var initServicePointMap = function initServicePointMap() {
+      var settings = {
+        organisation: '{$organisation}',
+        buildings: {$buildingsArray}
+      }
+
+      var url = '{$mapApiUrl}';
+      var mapWidget = finna.mapWidget(this.document);
+
+      mapWidget.init($('.{$wrapperClass}'), $('.{$mapWrapperClass}'), url, settings);
+    };
+
+    if(!finna.mapWidget) {
+      return;
+    }
+
+    initServicePointMap();
+  });
+JS;
+
+echo $this->inlineScript(\Laminas\View\Helper\HeadScript::SCRIPT, $js, 'SET');
+?>

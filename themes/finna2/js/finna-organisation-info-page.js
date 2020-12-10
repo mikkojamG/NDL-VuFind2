@@ -230,7 +230,7 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
 
         infoWidget.organisationListLoaded(response);
         if (cnt > 0) {
-          initMap();
+          // initMap();
           holder.find('.office-quick-information').show();
 
           // if theres only one service point, hide searchbox and ignore initSearch
@@ -239,7 +239,7 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
             id = Object.keys(organisationList)[0];
           } else {
             // IE opens Delay initing autocomplete menu to prevent IE from opening it automatically at
-            initSearch();
+            // initSearch();
           }
           var desc = VuFind.translate('organisationInfoAutocomplete').replace('%%count%%', cnt);
           holder.find('.ui-autocomplete-input')
@@ -248,7 +248,7 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
             .focus().blur();
 
           if (typeof id != 'undefined' && id) {
-            updateSelectedOrganisation(id, true);
+            // updateSelectedOrganisation(id, true);
           }
         } else {
           holder.find('.map-ui').hide();
@@ -624,7 +624,7 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
     window.onhashchange = function onHashChange() {
       var id = getOrganisationFromURL();
       if (id) {
-        updateSelectedOrganisation(id, false);
+        // updateSelectedOrganisation(id, false);
       }
 
       // Blur so that mobile keyboard is closed

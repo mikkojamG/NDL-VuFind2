@@ -1,0 +1,74 @@
+<div class="service-point-schedule <?= $wrapperClass; ?>" data-organisation="<?= $organisation; ?>" data-service-point-id="<?= $servicePointId; ?>">
+  <?php if (!isset($showControls) || $showControls) : ?>
+    <div class="organisation-dropdown-wrapper">
+      <span class="js-dropdown-status sr-only" role="status" aria-live="polite" data-status-placeholder="<?= $dropdownStatusText; ?> {item}"></span>
+      <div class="organisation-dropdown-holder">
+        <?= $this->render('components/molecules/navigation/dropdowns/sort.phtml', ['dropdownClass' => 'organisation js-service-point-menu', 'items' => [], 'label' => $dropdownFallbackLabel ?? '', 'fallbackLabel' => $dropdownFallbackLabel ?? '', 'dropdownListLabel' => $dropdownFallbackLabel]) ?>
+      </div>
+      <div class="js-is-open">
+        <span class="js-open is-open open js-hide-onload hide">
+          <?= $openText; ?>
+        </span>
+        <span class="js-closed is-open closed js-hide-onload hide">
+          <?= $closedText; ?>
+        </span>
+      </div>
+    </div>
+  <?php endif; ?>
+  <span class="js-navigation-status sr-only" role="status" aria-live="polite" data-status-placeholder="<?= $weekNaviStatusText; ?> {0}"></span>
+  <?= $this->render('components/molecules/navigation/pagination/pager-with-label.phtml', ['wrapperClass' => 'js-week-navigation week-navigation week-navi-holder hide', 'prevButton' => ['class' => 'week-navigation-control js-prev-week', 'text' => $previousWeekLabel], 'label' => $weekText . ' <span class="js-week-number"></span>', 'nextButton' => ['class' => 'week-navigation-control js-next-week', 'text' => $nextWeekLabel]]) ?>
+  <?= $this->render('components/atoms/messaging/loader/loader.phtml', ['wrapperClass' => 'loader js-loader text-center']); ?>
+  <div class="js-opening-times-week opening-times-week"></div>
+  <?= $this->render('components/molecules/messaging/status/status.phtml', ['alertText' => $informationNotAvailableText, 'alertClass' => 'finna-info-alert js-no-schedules js-hide-onload hide']); ?>
+  <ul class="js-mobile-schedules mobile-schedules js-hide-onload hide"></ul>
+  <div class="js-schedules-info schedules-info js-hide-onload hide">
+  </div>
+</div>
+<template class="js-time-row-template">
+  <div class="time-row">
+    <div class="cell date">
+      <span class="js-date"></span>
+    </div>
+    <div class="cell description">
+      <span class="js-name"></span>
+      <span class="js-staff name-staff">
+        <?= $staffAvailableText; ?>
+      </span>
+      <span class="info js-info"></span>
+      <span class="js-selfservice selfservice-only hide">
+        <?= $selfServiceText; ?>
+      </span>
+    </div>
+    <div class="cell time-container js-time-container"></div>
+  </div>
+</template>
+<template class="js-time-template">
+  <div>
+    <span class="js-period">
+      <span class="js-opens"></span> - <span class="js-closes"></span>
+    </span>
+    <span class="js-closed closed-today hide">
+      <?= $closedText; ?>
+    </span>
+  </div>
+</template>
+<?php
+$js = <<<JS
+  $(document).ready(function onDocumentReady() {
+    var initServicePointSchedule = function initServicePointSchedule() {
+      var servicePointSchedule = finna.servicePointSchedule(this.document);
+
+      servicePointSchedule.init($('.{$wrapperClass}'), finna.organisationInfo);
+      servicePointSchedule.getServicePointSchedules();
+    };
+    
+    if (!finna.servicePointSchedule || !finna.organisationInfo) {
+      return;
+    }
+
+    initServicePointSchedule();
+  });
+JS;
+
+echo $this->inlineScript(\Laminas\View\Helper\HeadScript::SCRIPT, $js, 'SET');
+?>

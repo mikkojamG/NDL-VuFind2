@@ -1,0 +1,81 @@
+.accordion-outline(@outline, @hover) {
+  .collapse-accordion {
+    &-title {
+      outline: 0.1rem solid @outline;
+
+      &:hover,
+      &:focus {
+        outline-color: @hover;
+      }
+    }
+    &-panel {
+      outline: 0.1rem solid @outline;
+    }
+  }
+}
+
+.collapse-accordion {
+  width: 100%;
+
+  &-title {
+    &:extend(h4);
+
+    text-align: left;
+    width: 100%;
+    background-color: @gray-ultralight;
+    border: none;
+    padding: 1rem;
+    font-size: 1.6rem;
+    margin: 0;
+    transition: 0.3s background-color ease-in-out,
+      0.3s outline-color ease-in-out;
+
+    &.collapsed {
+      .collapse-accordion-icon {
+        transform: rotateX(0deg);
+      }
+    }
+
+    &:hover,
+    &:focus {
+      background-color: @gray-lighter;
+    }
+  }
+
+  &-icon {
+    transition: 0.3s transform ease-in-out;
+    font-weight: bold;
+    vertical-align: middle;
+    transform: rotateX(180deg);
+  }
+
+  &-panel {
+    padding: 1rem;
+    font-size: 1.4rem;
+    margin-top: 0.2rem;
+
+    p {
+      margin-bottom: 0.9rem;
+    }
+  }
+
+  &-outline {
+    .accordion-outline(@gray-lighter, @gray-lighter);
+  }
+
+  &-dark {
+    .collapse-accordion-title {
+      background-color: @gray-light;
+      color: white;
+
+      &:hover,
+      &:focus {
+        background-color: @gray;
+      }
+    }
+
+    &.collapse-accordion-outline {
+      .accordion-outline(@gray-lighter, @gray);
+    }
+  }
+}

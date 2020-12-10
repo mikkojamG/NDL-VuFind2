@@ -1,0 +1,7 @@
+<label for="<?= $inputName; ?>" class="<?= isset($labelClass) ? $labelClass : ''; ?>">
+  <?= $label; ?>
+</label>
+<textarea id="<?= $inputName; ?>" name="<?= $inputName; ?>" class="form-control <?= isset($inputClass) ? $inputClass : ''; ?>" rows="<?= isset($rows) ? $rows : '3'; ?>" cols="<?= isset($cols) ? $cols : '20'; ?>" <?= (isset($required) && $required) ? 'aria-required="true" required="true"' : ''; ?>></textarea>
+<?php if (isset($required) && $required) : ?>
+  <div class="invalid-feedback"><?= $errorMessage; ?></div>
+<?php endif; ?>

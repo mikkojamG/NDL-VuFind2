@@ -1,0 +1,32 @@
+<div class="organisation-feed-wrapper <?= $wrapperClass; ?>">
+  <?= $this->render('components/molecules/messaging/status/status.phtml', ['alertText' => $informationNotAvailableText, 'alertClass' => 'js-feed-alert hide']); ?>
+  <?= $this->render('components/atoms/messaging/loader/loader.phtml', ['wrapperClass' => 'js-loader']); ?>
+  <div class="organisation-feed js-feed-grid" data-rss-id="<?= $rssId; ?>" data-service-point-id="<?= $servicePointId; ?>" data-organisation="<?= $organisation; ?>">
+  </div>
+</div>
+<?php
+$url = isset($rssUrl) ? $rssUrl : '';
+$js = <<<JS
+  $(document).ready(function() {
+    var initOrganisationFeed = function initOrganisationFeed() {
+      var params = {
+        id: '{$rssId}',
+        url: '{$url}'
+      };
+
+      var feed = finna.organisationFeed(this.document);
+
+      feed.init($('.{$wrapperClass}'), finna.organisationInfo);
+      feed.getFeed(params);
+    };
+    
+    if(!finna.organisationFeed || !finna.organisationInfo) {
+      return;
+    }
+
+    initOrganisationFeed();
+  });
+JS;
+
+echo $this->inlineScript(\Laminas\View\Helper\HeadScript::SCRIPT, $js, 'SET');
+?>

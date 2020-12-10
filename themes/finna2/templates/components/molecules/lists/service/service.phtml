@@ -1,0 +1,43 @@
+<div class="services <?= $wrapperClass; ?>" data-organisation="<?= $organisation; ?>" data-service-point-id="<?= $servicePointId; ?>">
+  <?php if (isset($title)) : ?>
+    <h5 class="service-header">
+      <?= $title; ?>
+    </h5>
+  <?php endif; ?>
+  <?= $this->render('components/molecules/messaging/status/status.phtml', ['alertText' => $informationNotAvailableText, 'alertClass' => 'js-services-alert']); ?>
+  <?= $this->render('components/atoms/messaging/loader/loader.phtml', ['wrapperClass' => 'services-loader js-loader']); ?>
+  <ul class="service-list hide <?= $listWrapperClass; ?>" data-list-key="<?= $listDataKey; ?>">
+    <?php if (isset($items)) : ?>
+      <?php foreach ($items as $item) : ?>
+        <li class="service-list-item">
+          <?php if (isset($item['tooltip'])) : ?>
+            <?= $this->render('components/atoms/tooltips/tooltip/tooltip.phtml', ['buttonClasses' => ['btn', 'btn-link'], 'buttonText' => $item['name'], 'content' => $item['tooltip'], 'position' =>
+            'bottom']); ?>
+          <?php else : ?>
+            <span><?= $item['name']; ?></span>
+          <?php endif; ?>
+        </li>
+      <?php endforeach; ?>
+    <?php endif; ?>
+  </ul>
+</div>
+<?php
+$js = <<<JS
+  $(document).ready(function onDocumentReady() {
+    var initServicesList = function initServicesList() {
+      var servicesList = finna.organisationServicesList(this.document);
+
+      servicesList.init($('.{$wrapperClass}'), $('.{$listWrapperClass}'), finna.organisationInfo);
+      servicesList.getServices();
+    };
+
+    if (!finna.organisationServicesList || !finna.organisationInfo || !finna.layout) {
+      return;
+    }
+
+    initServicesList();
+  });
+JS;
+
+echo $this->inlineScript(\Laminas\View\Helper\HeadScript::SCRIPT, $js, 'SET');
+?>

@@ -1,0 +1,97 @@
+.service-point {
+  margin-bottom: 1rem;
+
+  @media (min-width: @screen-sm) {
+    flex-basis: 55%;
+  }
+
+  &-loader {
+    text-align: center;
+  }
+
+  &-info {
+    margin: 1rem 0;
+
+    &-wrapper {
+      @media (min-width: @screen-sm) {
+        display: flex;
+        flex-wrap: wrap;
+      }
+    }
+  }
+
+  &-title {
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  &-links {
+    display: flex;
+  }
+
+  &-link {
+    margin-right: 1rem;
+
+    &:last-of-type {
+      margin-right: 0;
+    }
+  }
+
+  &-opening-times {
+    margin-bottom: 1rem;
+
+    @media (min-width: @screen-sm) {
+      flex-basis: 40%;
+    }
+
+    .opening-times-title {
+      margin: 0;
+
+      .open {
+        color: green;
+      }
+
+      .closed {
+        color: @brand-danger;
+      }
+    }
+  }
+
+  &-social-media {
+    @facebook-blue: #3b5998;
+
+    margin-bottom: 1rem;
+
+    @media (min-width: @screen-sm) {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      flex-basis: 5%;
+    }
+
+    a {
+      color: white;
+
+      i {
+        font-size: 2.1rem;
+        padding: 0.5rem;
+        background-color: @facebook-blue;
+      }
+    }
+  }
+
+  &-slogan {
+    @media (min-width: @screen-sm) {
+      flex-basis: 100%;
+    }
+
+    p {
+      font-size: 1.6rem;
+      margin-bottom: 0;
+      color: @gray-light;
+    }
+  }
+}

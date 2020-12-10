@@ -1,0 +1,4 @@
+<figure class="figure">
+  <img class="figure-image <?= isset($rounded) && $rounded ? 'figure-image-rounded' : ''; ?>" src="<?= $imgSrc; ?>" alt="<?= isset($imgAlt) ? $imgAlt : ''; ?>" <?= isset($height) ? 'height="' . $height . '"' : '' ?> <?= isset($width) ? 'width="' . $width . '"' : '' ?>>
+  <figcaption class="figure-caption <?= isset($align) ? 'figure-caption-align-' . $align : ''; ?>"><?= $caption; ?></figcaption>
+</figure>
